@@ -1,2 +1,4 @@
 .venv/
 __pycache__/
+trace-viewer/node_modules/
+var/CC-MAIN-20240412101354-20240412131354-00001.warc.gz
