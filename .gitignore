@@ -168,3 +168,5 @@ cython_debug/
 *.zip
 
 .DS_Store
+
+assignments/assignment1-basics/data/
