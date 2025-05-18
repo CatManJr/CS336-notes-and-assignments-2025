@@ -8,8 +8,13 @@ import argparse
 from pathlib import Path
 import psutil
 import logging
+import multiprocessing as mp
 
-from train_bpe import train_bpe, save_tokenizer
+from cs336_basics.token_utils import find_chunk_boundaries, process_chunk,get_pair_stats, \
+                                merge_byte_pairs
+import cProfile
+
+from train_bpe import TrainBPE, save_tokenizer
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,12 +32,18 @@ def find_longest_token(vocab):
     return longest_token, longest_token_id
 
 def main():
+    # Get the project root directory (parent of the directory containing this script)
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    default_input_path = project_root / "data" / "TinyStoriesV2-GPT4-train.txt"
+    default_output_dir = project_root / "data"
+    
     parser = argparse.ArgumentParser(description='Train a BPE tokenizer on TinyStories')
-    parser.add_argument('--input', default='../data/TinyStoriesV2-GPT4-train.txt', 
+    parser.add_argument('--input', default=str(default_input_path),
                         help='Path to TinyStories training data')
-    parser.add_argument('--vocab-size', type=int, default=10000, 
+    parser.add_argument('--vocab-size', type=int, default=500, 
                         help='Maximum vocabulary size')
-    parser.add_argument('--output-dir', default='./output', 
+    parser.add_argument('--output-dir', default=str(default_output_dir), 
                         help='Directory to save the tokenizer files')
     parser.add_argument('--processes', type=int, default=None, 
                         help='Number of processes to use for parallelization')
@@ -52,12 +63,14 @@ def main():
     
     # Train the tokenizer
     logging.info(f"Starting BPE training on TinyStories with vocab size {args.vocab_size}...")
-    vocab, merges = train_bpe(
+    train_bpe = TrainBPE(
         input_path=args.input,
         vocab_size=args.vocab_size,
         special_tokens=["<|endoftext|>"],
         num_processes=args.processes
     )
+    train_bpe.train(measurement=False)
+    vocab, merges = train_bpe.vocab, train_bpe.merges
     
     # Calculate elapsed time and memory usage
     end_time = time.time()

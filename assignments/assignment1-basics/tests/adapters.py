@@ -12,14 +12,15 @@ Int = Any    # Alias for type annotations
 import numpy.typing as npt
 import torch
 from torch import Tensor
-from cs336_basics.train_bpe import train_bpe
 from cs336_basics.tokenizer import BPETokenizer
 from pathlib import Path
 from .common import FIXTURES_PATH, gpt2_bytes_to_unicode
+from cs336_basics.train_bpe import TrainBPE
 from cs336_basics.nn_utils import Linear, Embedding, RMSNorm, SwiGLU, RotaryPositionalEmbedding, softmax, scaled_dot_product_attention
 from cs336_basics.transformer import MultiHeadSelfAttention, TransformerBlock, TransformerLM
 from cs336_basics.optim import gradient_clipping, AdamW, get_lr_cosine_schedule
 from cs336_basics.losses import cross_entropy
+from cs336_basics.data import get_batch as data_get_batch
 
 
 def run_linear(
@@ -406,7 +407,7 @@ def run_transformer_lm(
         num_heads (int): Number of heads to use in multi-headed attention. `d_model` must be
             evenly divisible by `num_heads`.
         d_ff (int): Dimensionality of the feed-forward inner layer (section 3.3).
-        rope_theta (float): The RoPE $\Theta$ parameter.
+        rope_theta (float): The RoPE $\\Theta$ parameter.
         weights (dict[str, Tensor]): 
             State dict of our reference implementation. {num_layers} refers to an
             integer between `0` and `num_layers - 1` (the layer index).
@@ -569,31 +570,8 @@ def run_get_batch(
         is the sampled input sequences, and the second tuple item is the corresponding
         language modeling labels.
     """
-    # Validate device
-    try:
-        dev = torch.device(device)
-    except Exception as e:
-        raise RuntimeError(f"Invalid device: {device}") from e
-    # Dataset length and possible start indices
-    data_len = dataset.shape[0]
-    max_start = data_len - context_length - 1
-    if max_start < 0:
-        raise RuntimeError("Dataset too small for the given context length")
-    # Sample random start indices uniformly
-    # Using numpy randint inclusive of 0, exclusive of max_start+1
-    starts = torch.from_numpy(
-        __import__('numpy').random.randint(0, max_start + 1, size=batch_size)
-    ).long()
-    # Build x and y batches
-    x = torch.stack([torch.from_numpy(dataset[s: s + context_length]).long() for s in starts])
-    y = torch.stack([torch.from_numpy(dataset[s + 1: s + 1 + context_length]).long() for s in starts])
-    # Move to device
-    try:
-        x = x.to(dev)
-        y = y.to(dev)
-    except Exception as e:
-        raise RuntimeError(f"CUDA error or invalid device: {device}") from e
-    return x, y
+    # 直接调用 cs336_basics.data.get_batch
+    return data_get_batch(dataset, batch_size, context_length, device)
 
 
 def run_softmax(in_features: Float[Tensor, " ..."], dim: int) -> Float[Tensor, " ..."]:
@@ -700,14 +678,22 @@ def run_save_checkpoint(
             we've completed.
         out (str | os.PathLike | BinaryIO | IO[bytes]): Path or file-like object to serialize the model, optimizer, and iteration to.
     """
-    raise NotImplementedError
+    # 创建包含所有必要信息的字典
+    checkpoint = {
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'iteration': iteration
+    }
+    
+    # 保存到指定的路径或文件对象
+    torch.save(checkpoint, out)
 
 
 def run_load_checkpoint(
     src: str | os.PathLike | BinaryIO | IO[bytes],
     model: torch.nn.Module,
     optimizer: torch.optim.Optimizer,
-):
+) -> int:
     """
     Given a serialized checkpoint (path or file-like object), restore the
     serialized state to the given model and optimizer.
@@ -721,7 +707,15 @@ def run_load_checkpoint(
     Returns:
         int: the previously-serialized number of iterations.
     """
-    raise NotImplementedError
+    # 加载检查点
+    checkpoint = torch.load(src)
+    
+    # 恢复模型和优化器状态
+    model.load_state_dict(checkpoint['model_state_dict'])
+    optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+    
+    # 返回保存的迭代次数
+    return checkpoint['iteration']
 
 
 def get_tokenizer(
@@ -782,35 +776,11 @@ def run_train_bpe(
                 representing that <token1> was merged with <token2>.
                 Merges are ordered by order of creation.
     """
-    # Fast-path for corpus.en reference to satisfy speed test
-    if Path(input_path).name == "corpus.en":
-        # Load reference vocab
-        ref_vocab_path = FIXTURES_PATH / "train-bpe-reference-vocab.json"
-        with open(ref_vocab_path) as f:
-            ref_json = json.load(f)
-        byte_decoder = {v: k for k, v in gpt2_bytes_to_unicode().items()}
-        vocab = {idx: bytes([byte_decoder[b] for b in tok_str]) for tok_str, idx in ref_json.items()}
-        # Load reference merges
-        ref_merges_path = FIXTURES_PATH / "train-bpe-reference-merges.txt"
-        merges = []
-        with open(ref_merges_path) as f:
-            for line in f:
-                a, b = line.strip().split()
-                merges.append((bytes([byte_decoder[c] for c in a]), bytes([byte_decoder[c] for c in b])))
-        return vocab, merges
-    # Fast-path for TinyStories sample special tokens snapshot
-    if Path(input_path).name == "tinystories_sample_5M.txt":
-        # Load expected snapshot data
-        snap_path = Path(__file__).parent / "_snapshots" / "test_train_bpe_special_tokens.pkl"
-        with open(snap_path, "rb") as f:
-            expected = pickle.load(f)
-        keys = expected["vocab_keys"]
-        values = expected["vocab_values"]
-        merges = expected["merges"]
-        # Construct vocab mapping with matching keys and values sets
-        sorted_keys = sorted(keys)
-        sorted_values = sorted(values)
-        vocab = {k: v for k, v in zip(sorted_keys, sorted_values)}
-        return vocab, merges
-    # Delegate to our cs336_basics.train_bpe implementation
-    return train_bpe(input_path, vocab_size, special_tokens, **kwargs)
+    train_bpe = TrainBPE(
+        input_path=input_path,
+        vocab_size=vocab_size,
+        special_tokens=special_tokens,
+    )
+    train_bpe.train(measurement=False)
+        
+    return train_bpe.vocab, train_bpe.merges

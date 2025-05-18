@@ -8,8 +8,13 @@ import argparse
 from pathlib import Path
 import psutil
 import logging
+import multiprocessing as mp
 
-from train_bpe import train_bpe, save_tokenizer
+from cs336_basics.token_utils import find_chunk_boundaries, process_chunk,get_pair_stats, \
+                                merge_byte_pairs
+import cProfile
+
+from train_bpe import TrainBPE, save_tokenizer
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -52,12 +57,14 @@ def main():
     
     # Train the tokenizer
     logging.info(f"Starting BPE training on OpenWebText with vocab size {args.vocab_size}...")
-    vocab, merges = train_bpe(
+    train_bpe = TrainBPE(
         input_path=args.input,
         vocab_size=args.vocab_size,
         special_tokens=["<|endoftext|>"],
         num_processes=args.processes
     )
+    train_bpe.train(measurement=False)
+    vocab, merges = train_bpe.vocab, train_bpe.merges
     
     # Calculate elapsed time and memory usage
     end_time = time.time()
