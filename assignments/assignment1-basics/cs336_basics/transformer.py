@@ -171,7 +171,10 @@ class TransformerBlock(nn.Module):
 
 class TransformerLM(nn.Module):
     """
-    Full Transformer Language Model with token embeddings, multiple transformer blocks, and a language model head.
+    Full Transformer Language Model with token embeddings, 
+    multiple transformer blocks, and a language model head.
+    
+    Decoder only architecture.
     """
     def __init__(
         self,

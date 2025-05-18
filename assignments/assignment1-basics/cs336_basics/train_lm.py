@@ -9,8 +9,7 @@ from collections.abc import Iterable
 
 import numpy as np
 import torch
-from torch import nn, Tensor
-import torch.nn.functional as F
+from torch.nn import Module
 
 try:
     import wandb
@@ -32,7 +31,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def save_checkpoint(
-    model: nn.Module,
+    model: Module,
     optimizer: torch.optim.Optimizer,
     iteration: int,
     loss: float,
