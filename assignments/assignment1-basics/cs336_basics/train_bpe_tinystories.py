@@ -66,8 +66,7 @@ def main():
     train_bpe = TrainBPE(
         input_path=args.input,
         vocab_size=args.vocab_size,
-        special_tokens=["<|endoftext|>"],
-        num_processes=args.processes
+        special_tokens=["<|endoftext|>"]
     )
     train_bpe.train(measurement=False)
     vocab, merges = train_bpe.vocab, train_bpe.merges

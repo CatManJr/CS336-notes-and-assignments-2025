@@ -58,3 +58,40 @@ gunzip owt_valid.txt.gz
 cd ..
 ```
 
+### Training my Transformer Language Model
+
+1. **Prepare your data and tokenizer:**
+   - Ensure you have downloaded and preprocessed your data (see the "Download data" section above).
+   - Train a BPE tokenizer if you haven't already:
+     ```sh
+     uv run cs336_basics/train_bpe_tinystories.py
+     ```
+     or for OpenWebText:
+     ```sh
+     uv run cs336_basics/train_bpe_owt.py
+     ```
+
+2. **Tokenize your dataset (if required):**
+   - Use your tokenizer to convert raw text into token IDs. (Refer to the assignment handout or provided scripts for details.)
+
+3. **Train the Transformer LM:**
+   - Run the training script. For TinyStories, for example:
+     ```sh
+     uv run cs336_basics/train_tiny_stories.py --data_dir ./data --output_dir ./output
+     ```
+   - You can adjust model hyperparameters (like `--context_length`, `--d_model`, `--num_layers`, etc.) using command-line arguments. See the script for all options.
+
+4. **Monitor training:**
+   - Training logs, checkpoints, and (optionally) wandb logs will be saved in the output directory you specify.
+
+5. **Evaluate and generate text:**
+   - After training, you can use the provided `generate.py` script to generate text from your trained model:
+     ```sh
+     uv run cs336_basics/generate.py --model_path ./output/checkpoints/your_model.pt --prompt "Once upon a time"
+     ```
+
+**Quality Tips:**
+- Make sure your tokenizer and model hyperparameters match.
+- Use a validation set to monitor for overfitting.
+- For best results, train for enough iterations and tune your learning rate and batch size according to your hardware.
+

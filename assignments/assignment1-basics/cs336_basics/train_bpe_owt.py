@@ -32,12 +32,17 @@ def find_longest_token(vocab):
     return longest_token, longest_token_id
 
 def main():
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+    default_input_path = project_root / "data" / "TinyStoriesV2-GPT4-train.txt"
+    default_output_dir = project_root / "data"
+    
     parser = argparse.ArgumentParser(description='Train a BPE tokenizer on OpenWebText')
-    parser.add_argument('--input', default='../data/owt_train.txt', 
+    parser.add_argument('--input', default=str(default_input_path), 
                         help='Path to OpenWebText training data')
     parser.add_argument('--vocab-size', type=int, default=32000, 
                         help='Maximum vocabulary size')
-    parser.add_argument('--output-dir', default='./output', 
+    parser.add_argument('--output-dir', default=str(default_output_dir), 
                         help='Directory to save the tokenizer files')
     parser.add_argument('--processes', type=int, default=None, 
                         help='Number of processes to use for parallelization')
@@ -60,8 +65,7 @@ def main():
     train_bpe = TrainBPE(
         input_path=args.input,
         vocab_size=args.vocab_size,
-        special_tokens=["<|endoftext|>"],
-        num_processes=args.processes
+        special_tokens=["<|endoftext|>"]
     )
     train_bpe.train(measurement=False)
     vocab, merges = train_bpe.vocab, train_bpe.merges
