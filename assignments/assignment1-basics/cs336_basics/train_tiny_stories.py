@@ -124,7 +124,7 @@ def main():
     parser.add_argument("--wandb_project", type=str, default="cs336-tinystories", help="W&B project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="W&B entity (user or team)")
     parser.add_argument("--skip_tokenization", action="store_true", help="Skip tokenization even if tokenized files don't exist")
-
+    parser.add_argument("--patience", type=int, default=100, help="Early stopping patience")
     args = parser.parse_args()
     
     # Ensure paths exist
@@ -170,6 +170,7 @@ def main():
         wandb_project=args.wandb_project,
         wandb_entity=args.wandb_entity,
         tokenizer=tokenizer,  # Pass the tokenizer
+        early_stopping_patience=args.patience,
     )
 
 if __name__ == "__main__":

@@ -227,6 +227,8 @@ def train(
     sample_interval: int = 500,
     # tokenizer for text generation
     tokenizer: Optional[BPETokenizer] = None,
+    # early stopping
+    early_stopping_patience: Optional[int] = None,  # 新增参数
 ) -> Module:
     """
     Train a Transformer language model.
@@ -266,6 +268,7 @@ def train(
         sample_length: Length of generated samples
         sample_interval: Generate samples every N iterations
         tokenizer: Tokenizer for text generation
+        early_stopping_patience: Number of evaluations without improvement before stopping (optional)
 
     Returns:
         Trained model
@@ -324,17 +327,29 @@ def train(
     param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
     logger.info(f"Model has {param_count / 1e6:.2f}M parameters")
 
-    bytes_per_param = 4
+    bytes_per_param = 4  # FP32
     model_size_gb = param_count * bytes_per_param / (1024**3)
-    optimizer_size_gb = model_size_gb * 2
-    batch_memory_gb = (batch_size * context_length * d_model * 4) / (1024**3) * 4
-    total_memory_gb = model_size_gb + optimizer_size_gb + batch_memory_gb
+    forward_backward_gb = model_size_gb * 6  # Forward and backward passes use approximately 6x parameter memory
+    optimizer_size_gb = model_size_gb * 2  # Adam optimizer states (momentum and variance)
+    batch_memory_gb = (batch_size * context_length * d_model * 4) / (1024**3)
+    total_memory_gb = model_size_gb + forward_backward_gb + optimizer_size_gb + batch_memory_gb
+        
+    
+    # Calculate FLOPS based on transformer operations
+    # Attention operations: 4 * d_model^2 * seq_len + 2 * seq_len^2 * d_model
+    # FFN operations: 2 * d_model * d_ff * seq_len
+    flops_per_seq_per_layer = context_length * (4 * d_model**2 + 2 * context_length * d_model + 2 * d_model * d_ff)
+    flops_forward = batch_size * num_layers * flops_per_seq_per_layer
+    flops_training = 3 * flops_forward  # Forward + backward (roughly 3x)
+    flops_training_tflops = flops_training / 1e12  # Convert to TFLOPS
 
     logger.info(f"Estimated memory usage:")
     logger.info(f"  - Model parameters: {model_size_gb:.2f} GB")
+    logger.info(f"  - Forward/backward passes: {forward_backward_gb:.2f} GB")
     logger.info(f"  - Optimizer states: {optimizer_size_gb:.2f} GB")
     logger.info(f"  - Batch processing: {batch_memory_gb:.2f} GB")
     logger.info(f"  - Total estimated: {total_memory_gb:.2f} GB")
+    logger.info(f"  - Training FLOPS per iteration: {flops_training_tflops:.4f} TFLOPS")
 
     if use_wandb:
         wandb.log({
@@ -354,6 +369,7 @@ def train(
 
     start_iter = 0
     best_val_loss = float('inf')
+    patience_counter = 0  # 新增变量
     if resume_from:
         start_iter, val_loss, extra_data = load_checkpoint(
             model=model,
@@ -556,6 +572,7 @@ def train(
                     wandb.log({"val/loss": val_loss}, step=it)
                 if val_loss < best_val_loss:
                     best_val_loss = val_loss
+                    patience_counter = 0  # reset patience
                     save_path = checkpoint_dir / f"{checkpoint_prefix}_best.pt"
                     extra_data = {
                         'is_best': True,
@@ -574,6 +591,11 @@ def train(
                     if use_wandb:
                         wandb.run.summary["best_val_loss"] = val_loss
                         wandb.run.summary["best_val_loss_step"] = it
+                else:
+                    patience_counter += 1
+                    if early_stopping_patience is not None and patience_counter >= early_stopping_patience:
+                        logger.info(f"Early stopping at iteration {it} (no val improvement for {early_stopping_patience} evals)")
+                        break
 
                 training_stats["val_loss"].append(val_loss)
 
@@ -698,6 +720,7 @@ def train_tiny_stories(
     generate_samples: bool = True,
     vocab_size: Optional[int] = 10000,
     tokenizer: Optional[BPETokenizer] = None,
+    early_stopping_patience: Optional[int] = None,  # early stopping patience
 ) -> None:
     """
     Quick training function for language modeling on the TinyStories dataset.
@@ -810,6 +833,7 @@ def train_tiny_stories(
         generate_samples=generate_samples,
         sample_interval=200,  # Generate samples more frequently for TinyStories
         tokenizer=tokenizer,  # Pass the tokenizer
+        early_stopping_patience=early_stopping_patience, # Early stopping patience
     )
 
     logger.info(f"Training completed! Model saved to {output_dir}/checkpoints")
