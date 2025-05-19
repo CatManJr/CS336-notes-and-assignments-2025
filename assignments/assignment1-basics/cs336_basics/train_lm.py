@@ -185,6 +185,7 @@ def estimate_loss(
 
 
 def train(
+    # Todo: implement Resume from checkpoint
     # dataset config
     train_dataset: np.ndarray,
     val_dataset: Optional[np.ndarray] = None,
@@ -378,9 +379,6 @@ def train(
         )
         best_val_loss = val_loss
         logger.info(f"Resuming from iteration {start_iter} with validation loss {val_loss:.4f}")
-        if use_wandb and "wandb_run_id" in extra_data:
-            wandb.run.id = extra_data["wandb_run_id"]
-            logger.info(f"Resuming wandb run with ID: {wandb.run.id}")
 
     # Setup visualization components
     if visualize:
@@ -411,62 +409,34 @@ def train(
         top_k: Optional[int] = None,
         device: str = 'cpu'
     ) -> Tuple[torch.Tensor, Optional[str]]:
-        """
-        Simple sampling from a language model with top-k filtering.
-    
-        Args:
-            model: The language model to generate from
-            tokenizer: Optional tokenizer for decoding the generated tokens
-            starter_tokens: Optional list of token ids to start generation with
-            max_length: Maximum length of generated sequence
-            temp: Sampling temperature (1.0 = no change, 0.0 = greedy)
-            top_k: If specified, only sample from the top k most likely tokens
-            device: Device to run generation on
-    
-        Returns:
-            Tuple of (tensor of token ids with shape (1, generated_length), decoded text if tokenizer provided)
-        """
         model.eval()
         with torch.no_grad():
-            # Create initial context
+            # 获取模型实际 device
+            model_device = next(model.parameters()).device
+            # context 初始化在模型 device 上
             if starter_tokens is None:
-                # Start with a single token (typically 0 or BOS token)
-                context = torch.tensor([0], dtype=torch.long, device=device)
+                context = torch.tensor([0], dtype=torch.long, device=model_device)
             else:
-                context = torch.tensor(starter_tokens, dtype=torch.long, device=device)
+                context = torch.tensor(starter_tokens, dtype=torch.long, device=model_device)
 
-            # Ensure context has correct shape [seq_len] 
-            # The model will add the batch dimension as needed
-        
-            # Generate tokens one at a time
             for _ in range(max_length):
-                # Get logits and take the last step
                 logits = model(context)
-
-                # Handle different output shapes - ensure we get the last token's logits
-                if logits.dim() == 3:  # [batch, seq, vocab]
-                    logits = logits[0, -1, :]  # Just take the first batch and last token
-                elif logits.dim() == 2:  # [seq, vocab] 
-                    logits = logits[-1, :]  # Take just the last token
-                
-                # Apply temperature
+                if logits.dim() == 3:
+                    logits = logits[0, -1, :]
+                elif logits.dim() == 2:
+                    logits = logits[-1, :]
                 if temp > 0:
                     logits = logits / temp
-                
-                # Apply top-k filtering if needed
                 if top_k is not None:
                     v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
                     logits[logits < v[-1]] = -float('Inf')
-                
-                # Sample from the distribution
                 probs = torch.nn.functional.softmax(logits, dim=-1)
                 next_token = torch.multinomial(probs, num_samples=1)
-            
-                # Append the new token
+                # 保证 next_token 也在 model_device 上
+                next_token = next_token.to(model_device)
                 context = torch.cat([context, next_token], dim=0)
-            
-        # Return as a tensor with batch dimension and decoded text if tokenizer provided
-        tokens = context.unsqueeze(0)  # Add batch dimension [1, seq_len]
+
+        tokens = context.unsqueeze(0)
         decoded_text = tokenizer.decode(tokens[0].tolist()) if tokenizer else None
         return tokens, decoded_text
 
@@ -721,6 +691,7 @@ def train_tiny_stories(
     vocab_size: Optional[int] = 10000,
     tokenizer: Optional[BPETokenizer] = None,
     early_stopping_patience: Optional[int] = None,  # early stopping patience
+    resume_from: Optional[str] = None,
 ) -> None:
     """
     Quick training function for language modeling on the TinyStories dataset.
@@ -834,6 +805,7 @@ def train_tiny_stories(
         sample_interval=200,  # Generate samples more frequently for TinyStories
         tokenizer=tokenizer,  # Pass the tokenizer
         early_stopping_patience=early_stopping_patience, # Early stopping patience
+        resume_from=resume_from,  # Resume from checkpoint if provided
     )
 
     logger.info(f"Training completed! Model saved to {output_dir}/checkpoints")

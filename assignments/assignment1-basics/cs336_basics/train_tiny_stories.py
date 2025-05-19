@@ -6,6 +6,7 @@ This script provides a complete pipeline that:
 2. If not, trains a BPE tokenizer and tokenizes the data
 3. Runs the training process on the tokenized data
 """
+# TODO: Add support for resume training from a checkpoint
 import argparse
 import os
 import json
@@ -107,6 +108,14 @@ def ensure_tokenized_data(data_dir):
     logger.info(f"Tokenization completed in {elapsed:.2f} seconds")
     return True
 
+def load_config_for_resume(resume_from_path):
+    config_path = Path(resume_from_path).parent.parent / "config.json"
+    if config_path.exists():
+        with open(config_path, "r") as f:
+            config = json.load(f)
+        return config
+    return {}
+
 def main():
     parser = argparse.ArgumentParser(description="Train a Decoder-Only Transformer LM on TinyStories data")
     parser.add_argument("--data_dir", type=str, default="./data", help="Directory containing TinyStories tokenized data (.npy files)")
@@ -125,8 +134,18 @@ def main():
     parser.add_argument("--wandb_entity", type=str, default=None, help="W&B entity (user or team)")
     parser.add_argument("--skip_tokenization", action="store_true", help="Skip tokenization even if tokenized files don't exist")
     parser.add_argument("--patience", type=int, default=100, help="Early stopping patience")
+    parser.add_argument("--resume_from", type=str, default=None, help="Path to checkpoint to resume training from")
     args = parser.parse_args()
-    
+
+    # 如果 resume_from，自动加载 config.json 并覆盖参数
+    if args.resume_from:
+        config = load_config_for_resume(args.resume_from)
+        for k, v in config.items():
+            # 只覆盖未在命令行指定的参数
+            if not hasattr(args, k) or getattr(args, k) == parser.get_default(k):
+                setattr(args, k, v)
+        print(f"[INFO] Loaded config from {config}")
+
     # Ensure paths exist
     Path(args.data_dir).mkdir(parents=True, exist_ok=True)
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
@@ -171,6 +190,7 @@ def main():
         wandb_entity=args.wandb_entity,
         tokenizer=tokenizer,  # Pass the tokenizer
         early_stopping_patience=args.patience,
+        resume_from=args.resume_from,
     )
 
 if __name__ == "__main__":
