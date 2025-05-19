@@ -14,7 +14,8 @@ class BPETokenizer:
         self, 
         vocab: Dict[int, bytes], 
         merges: List[Tuple[bytes, bytes]], 
-        special_tokens: Optional[List[str]] = None
+        special_tokens: Optional[List[str]] = None,
+        vocab_size: Optional[int] = None
     ):
         """
         Initialize a BPE tokenizer with the given vocabulary and merges.
@@ -23,10 +24,12 @@ class BPETokenizer:
             vocab: Dictionary mapping token IDs to token bytes
             merges: List of BPE merges as tuples of (first, second) bytes
             special_tokens: List of special tokens that should be treated atomically
+            vocab_size: Size of vocabulary, used to enforce token ID bounds
         """
         self.vocab = vocab
         self.merges = merges
         self.special_tokens = special_tokens or []
+        self.vocab_size = vocab_size
         
         # Create a mapping from token bytes to token IDs
         self.token_bytes_to_id = {token: token_id for token_id, token in vocab.items()}
@@ -64,6 +67,9 @@ class BPETokenizer:
         with open(vocab_path, 'r', encoding='utf-8') as f:
             str_vocab = json.load(f)
         
+        # 计算并保存词汇表大小
+        vocab_size = len(str_vocab)
+        
         # Convert string vocab to bytes vocab
         byte_decoder = unicode_to_bytes()
         vocab = {}
@@ -80,8 +86,8 @@ class BPETokenizer:
                 second = bytes([byte_decoder.get(c, ord(c)) for c in second_str])
                 merges.append((first, second))
         
-        # Create tokenizer
-        return cls(vocab, merges, special_tokens)
+        # 传递词汇表大小
+        return cls(vocab, merges, special_tokens, vocab_size)
     
     def bpe(self, token: bytes) -> List[bytes]:
         """
@@ -187,6 +193,18 @@ class BPETokenizer:
                         for b in bpe_token:
                             token_ids.append(self.token_bytes_to_id[bytes([b])])
         
+        # 在返回前检查是否有超出词汇表大小的token
+        if self.vocab_size is not None:
+            for idx, token_id in enumerate(token_ids):
+                if token_id >= self.vocab_size:
+                    # 选项1: 替换为<unk> token (假设ID为0)
+                    token_ids[idx] = 0
+                    # 选项2: 抛出警告
+                    import warnings
+                    warnings.warn(f"Token ID {token_id} exceeds vocabulary size {self.vocab_size}")
+                    # 选项3: 抛出错误
+                    # raise ValueError(f"Token ID {token_id} exceeds vocabulary size {self.vocab_size}")
+        
         return token_ids
     
     def decode(self, token_ids: List[int]) -> str:
@@ -199,11 +217,19 @@ class BPETokenizer:
         Returns:
             The decoded text
         """
-        # Convert token IDs to token bytes
-        tokens = [self.vocab[token_id] for token_id in token_ids if token_id in self.vocab]
+        # 检查是否有超出词汇表的token_id
+        valid_tokens = []
+        for token_id in token_ids:
+            if token_id in self.vocab:
+                valid_tokens.append(self.vocab[token_id])
+            else:
+                # 选择1: 忽略无效的token_id
+                continue
+                # 选择2: 替换为一个特殊字符
+                # valid_tokens.append(b'<unk>')
         
-        # Concatenate all tokens and decode to string
-        text = b''.join(tokens).decode('utf-8', errors='replace')
+        # 连接所有token并解码为字符串
+        text = b''.join(valid_tokens).decode('utf-8', errors='replace')
         
         return text
     

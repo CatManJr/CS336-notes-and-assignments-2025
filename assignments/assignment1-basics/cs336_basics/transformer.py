@@ -155,6 +155,7 @@ class TransformerBlock(nn.Module):
         # Generate default positions if not provided
         if token_positions is None:
             seq_len = x.size(1)
+            # Create positions tensor with shape (batch_size, seq_len)
             token_positions = torch.arange(seq_len, device=x.device).expand(x.size(0), -1)
             
         # First sub-layer: Multi-head self-attention with pre-norm
@@ -232,22 +233,32 @@ class TransformerLM(nn.Module):
         self.context_length = context_length
         self.vocab_size = vocab_size
         
-    def forward(self, token_ids: torch.Tensor) -> torch.Tensor:
+    def forward(self, token_ids):
         """
-        Forward pass through the Transformer LM.
+        Forward pass through the Transformer language model.
         
         Args:
-            token_ids: Input token IDs of shape (batch_size, seq_len)
+            token_ids: Integer tensor of token ids, shape (batch_size, seq_len) or (seq_len,)
             
         Returns:
-            Output logits of shape (batch_size, seq_len, vocab_size)
+            logits: Output logits of shape (batch_size, seq_len, vocab_size)
         """
-        # Get sequence positions for RoPE
-        seq_len = token_ids.size(1)
-        positions = torch.arange(seq_len, device=token_ids.device).expand(token_ids.size(0), -1)
+        # 确保输入与模型在同一设备上
+        device = self.token_embeddings.weight.device
+        token_ids = token_ids.to(device)
         
-        # Token embeddings
+        # 处理单个序列的情况 (没有批次维度)
+        if token_ids.dim() == 1:
+            token_ids = token_ids.unsqueeze(0)  # 添加批次维度
+        
+        # 获取批次大小和序列长度
+        batch_size, seq_len = token_ids.size()
+        
+        # 嵌入和位置编码
         x = self.token_embeddings(token_ids)  # (batch_size, seq_len, d_model)
+        
+        # 从 0 到 seq_len-1 的位置编码
+        positions = torch.arange(0, seq_len, device=device).unsqueeze(0).expand(batch_size, -1)
         
         # Pass through each transformer block
         for layer in self.layers:

@@ -41,7 +41,7 @@ def main():
     parser = argparse.ArgumentParser(description='Train a BPE tokenizer on TinyStories')
     parser.add_argument('--input', default=str(default_input_path),
                         help='Path to TinyStories training data')
-    parser.add_argument('--vocab-size', type=int, default=500, 
+    parser.add_argument('--vocab-size', type=int, default=10000, 
                         help='Maximum vocabulary size')
     parser.add_argument('--output-dir', default=str(default_output_dir), 
                         help='Directory to save the tokenizer files')

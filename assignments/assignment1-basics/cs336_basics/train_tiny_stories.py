@@ -16,6 +16,7 @@ from typing import Optional
 import time
 from cs336_basics.train_lm import train_tiny_stories
 from cs336_basics.tokenizer import BPETokenizer
+from tqdm import tqdm
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -31,7 +32,13 @@ def tokenize_file(tokenizer, input_file, output_file):
 
         # Tokenize the text
         logger.info("Tokenizing text...")
-        tokens = tokenizer.encode(text)
+        # Split text into lines or chunks for progress visualization
+        lines = text.split('\n')
+        tokens = []
+        for line in tqdm(lines, desc="Encoding text", unit="line"):
+            if line.strip():  # Skip empty lines
+                line_tokens = tokenizer.encode(line)
+                tokens.extend(line_tokens)
         
         # Save tokens to numpy file
         logger.info(f"Saving {len(tokens)} tokens to {output_file}")
@@ -101,16 +108,16 @@ def ensure_tokenized_data(data_dir):
     return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Train a Transformer LM on TinyStories data")
+    parser = argparse.ArgumentParser(description="Train a Decoder-Only Transformer LM on TinyStories data")
     parser.add_argument("--data_dir", type=str, default="./data", help="Directory containing TinyStories tokenized data (.npy files)")
     parser.add_argument("--output_dir", type=str, default="./tiny_stories_model", help="Directory to save checkpoints and logs")
-    parser.add_argument("--context_length", type=int, default=512, help="Model context length")
-    parser.add_argument("--d_model", type=int, default=384, help="Transformer model dimension")
-    parser.add_argument("--num_heads", type=int, default=6, help="Number of attention heads")
+    parser.add_argument("--context_length", type=int, default=256, help="Model context length")
+    parser.add_argument("--d_model", type=int, default=512, help="Transformer model dimension")
+    parser.add_argument("--num_heads", type=int, default=8, help="Number of attention heads")
     parser.add_argument("--num_layers", type=int, default=6, help="Number of Transformer layers")
-    parser.add_argument("--d_ff", type=int, default=1536, help="Feedforward network hidden dimension")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training")
-    parser.add_argument("--max_iters", type=int, default=5000, help="Maximum training iterations")
+    parser.add_argument("--d_ff", type=int, default=1344, help="Feedforward network hidden dimension")
+    parser.add_argument("--batch_size", type=int, default=8, help="Batch size for training")
+    parser.add_argument("--max_iters", type=int, default=10000, help="Maximum training iterations")
     parser.add_argument("--learning_rate", type=float, default=1e-4, help="Learning rate")
     parser.add_argument("--device", type=str, default="cpu", help="Device to train on (cpu, mps, cuda)")
     parser.add_argument("--use_wandb", action="store_true", help="Enable Weights & Biases logging")
@@ -123,6 +130,21 @@ def main():
     # Ensure paths exist
     Path(args.data_dir).mkdir(parents=True, exist_ok=True)
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+    
+    # Load tokenizer
+    vocab_path = Path(args.data_dir) / "tinystories_vocab.json"
+    merges_path = Path(args.data_dir) / "tinystories_merges.txt"
+    
+    tokenizer = None
+    if vocab_path.exists() and merges_path.exists():
+        try:
+            logger.info(f"Loading tokenizer from {vocab_path} and {merges_path}")
+            tokenizer = BPETokenizer.from_file(str(vocab_path), str(merges_path))
+        except Exception as e:
+            logger.warning(f"Failed to load tokenizer: {e}")
+            logger.warning("Will continue without tokenizer, showing token IDs instead")
+    else:
+        logger.warning("Tokenizer files not found. Will continue without tokenizer, showing token IDs instead")
     
     # Ensure tokenized data exists
     if not args.skip_tokenization:
@@ -147,6 +169,7 @@ def main():
         use_wandb=args.use_wandb,
         wandb_project=args.wandb_project,
         wandb_entity=args.wandb_entity,
+        tokenizer=tokenizer,  # Pass the tokenizer
     )
 
 if __name__ == "__main__":

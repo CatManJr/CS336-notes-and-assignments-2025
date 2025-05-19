@@ -17,10 +17,26 @@ try:
 except ImportError:
     WANDB_AVAILABLE = False
 
+try:
+    from rich.console import Console
+    from rich.progress import Progress, TextColumn, BarColumn, TimeElapsedColumn, TimeRemainingColumn
+    from rich.table import Table
+    RICH_AVAILABLE = True
+    console = Console()
+except ImportError:
+    RICH_AVAILABLE = False
+
+try:
+    from tqdm import tqdm
+    TQDM_AVAILABLE = True
+except ImportError:
+    TQDM_AVAILABLE = False
+
 from cs336_basics.optim import AdamW, gradient_clipping, get_lr_cosine_schedule
 from cs336_basics.transformer import TransformerLM
 from cs336_basics.losses import cross_entropy
 from cs336_basics.data import get_batch
+from cs336_basics.tokenizer import BPETokenizer
 
 # setup logging
 logging.basicConfig(
@@ -75,7 +91,7 @@ def save_checkpoint(
 
 
 def load_checkpoint(
-    model: nn.Module,
+    model: Module,
     optimizer: torch.optim.Optimizer,
     checkpoint_path: Union[str, os.PathLike],
 ) -> Tuple[int, float, Dict[str, Any]]:
@@ -118,7 +134,7 @@ def load_checkpoint(
 
 
 def estimate_loss(
-    model: nn.Module,
+    model: Module,
     dataset: np.ndarray,
     batch_size: int,
     context_length: int,
@@ -144,10 +160,15 @@ def estimate_loss(
     
     with torch.no_grad():  
         for _ in range(eval_iters):
-            # using the get_batch function to sample a batch of data
+            # 获取数据
             x_batch, y_batch = get_batch(dataset, batch_size, context_length, device)
             
-            # Forward pass
+            # 确保数据和模型在同一设备上
+            model_device = next(model.parameters()).device
+            x_batch = x_batch.to(model_device)
+            y_batch = y_batch.to(model_device)
+            
+            # 前向传播
             logits = model(x_batch)
             
             # Calculate loss
@@ -174,9 +195,8 @@ def train(
     num_heads: int = 8,
     num_layers: int = 6,
     d_ff: int = 2048,
-    dropout: float = 0.1,
     # training config
-    device: str = 'mps',
+    device: str = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu',
     batch_size: int = 16,
     max_iters: int = 10000,
     eval_interval: int = 100,
@@ -200,7 +220,14 @@ def train(
     wandb_project: str = "cs336-lm-training",
     wandb_run_name: Optional[str] = None,
     wandb_entity: Optional[str] = None,
-) -> nn.Module:
+    # visualization and sample generation
+    visualize: bool = True,
+    generate_samples: bool = True,
+    sample_length: int = 100,
+    sample_interval: int = 500,
+    # tokenizer for text generation
+    tokenizer: Optional[BPETokenizer] = None,
+) -> Module:
     """
     Train a Transformer language model.
 
@@ -213,7 +240,6 @@ def train(
         num_heads: Number of attention heads
         num_layers: Number of Transformer layers
         d_ff: Feedforward layer dimension
-        dropout: Dropout probability
         device: Training device ('cpu', 'mps', or 'cuda')
         batch_size: Batch size
         max_iters: Maximum training iterations
@@ -235,6 +261,11 @@ def train(
         wandb_project: W&B project name
         wandb_run_name: W&B run name (optional)
         wandb_entity: W&B entity (optional)
+        visualize: Whether to use visual progress tracking (requires tqdm or rich)
+        generate_samples: Whether to generate text samples during training
+        sample_length: Length of generated samples
+        sample_interval: Generate samples every N iterations
+        tokenizer: Tokenizer for text generation
 
     Returns:
         Trained model
@@ -256,7 +287,6 @@ def train(
                 "num_heads": num_heads,
                 "num_layers": num_layers,
                 "d_ff": d_ff,
-                "dropout": dropout,
                 "device": device,
                 "batch_size": batch_size,
                 "max_iters": max_iters,
@@ -288,11 +318,8 @@ def train(
         num_heads=num_heads,
         num_layers=num_layers,
         d_ff=d_ff,
-        dropout=dropout,
-        theta=10000.0,
-        device=device,
-        dtype=torch.float32
-    )
+        theta=10000,
+    ).to(device)  # 确保模型到指定的设备上
 
     param_count = sum(p.numel() for p in model.parameters() if p.requires_grad)
     logger.info(f"Model has {param_count / 1e6:.2f}M parameters")
@@ -339,90 +366,276 @@ def train(
             wandb.run.id = extra_data["wandb_run_id"]
             logger.info(f"Resuming wandb run with ID: {wandb.run.id}")
 
+    # Setup visualization components
+    if visualize:
+        if RICH_AVAILABLE:
+            progress_display = Progress(
+                TextColumn("[bold blue]{task.description}"),
+                BarColumn(),
+                TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+                TimeElapsedColumn(),
+                TimeRemainingColumn(),
+                console=console
+            )
+            training_task = progress_display.add_task("[green]Training", total=max_iters - start_iter)
+        elif TQDM_AVAILABLE:
+            progress_bar = tqdm(total=max_iters - start_iter, desc="Training", 
+                              initial=0, position=0, leave=True)
+        else:
+            logger.warning("Neither rich nor tqdm is installed. Basic progress reporting will be used.")
+            visualize = False
+
+    # Create a function for generating text samples
+    def generate_text_sample(
+        model: Module,
+        tokenizer: Optional[BPETokenizer] = None,
+        starter_tokens: Optional[list[int]] = None,
+        max_length: int = 100,
+        temp: float = 0.8,
+        top_k: Optional[int] = None,
+        device: str = 'cpu'
+    ) -> Tuple[torch.Tensor, Optional[str]]:
+        """
+        Simple sampling from a language model with top-k filtering.
+    
+        Args:
+            model: The language model to generate from
+            tokenizer: Optional tokenizer for decoding the generated tokens
+            starter_tokens: Optional list of token ids to start generation with
+            max_length: Maximum length of generated sequence
+            temp: Sampling temperature (1.0 = no change, 0.0 = greedy)
+            top_k: If specified, only sample from the top k most likely tokens
+            device: Device to run generation on
+    
+        Returns:
+            Tuple of (tensor of token ids with shape (1, generated_length), decoded text if tokenizer provided)
+        """
+        model.eval()
+        with torch.no_grad():
+            # Create initial context
+            if starter_tokens is None:
+                # Start with a single token (typically 0 or BOS token)
+                context = torch.tensor([0], dtype=torch.long, device=device)
+            else:
+                context = torch.tensor(starter_tokens, dtype=torch.long, device=device)
+
+            # Ensure context has correct shape [seq_len] 
+            # The model will add the batch dimension as needed
+        
+            # Generate tokens one at a time
+            for _ in range(max_length):
+                # Get logits and take the last step
+                logits = model(context)
+
+                # Handle different output shapes - ensure we get the last token's logits
+                if logits.dim() == 3:  # [batch, seq, vocab]
+                    logits = logits[0, -1, :]  # Just take the first batch and last token
+                elif logits.dim() == 2:  # [seq, vocab] 
+                    logits = logits[-1, :]  # Take just the last token
+                
+                # Apply temperature
+                if temp > 0:
+                    logits = logits / temp
+                
+                # Apply top-k filtering if needed
+                if top_k is not None:
+                    v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                    logits[logits < v[-1]] = -float('Inf')
+                
+                # Sample from the distribution
+                probs = torch.nn.functional.softmax(logits, dim=-1)
+                next_token = torch.multinomial(probs, num_samples=1)
+            
+                # Append the new token
+                context = torch.cat([context, next_token], dim=0)
+            
+        # Return as a tensor with batch dimension and decoded text if tokenizer provided
+        tokens = context.unsqueeze(0)  # Add batch dimension [1, seq_len]
+        decoded_text = tokenizer.decode(tokens[0].tolist()) if tokenizer else None
+        return tokens, decoded_text
+
+    # Training stats tracking
+    training_stats = {
+        "train_loss": [],
+        "val_loss": [],
+        "learning_rate": [],
+        "iterations": []
+    }
+
+    # Start the progress tracker if using rich
+    if visualize and RICH_AVAILABLE:
+        progress_display.start()
+
     model.train()
     start_time = time.time()
 
-    for it in range(start_iter, max_iters):
-        lr = get_lr_cosine_schedule(
-            it=it,
-            max_learning_rate=learning_rate,
-            min_learning_rate=min_learning_rate,
-            warmup_iters=warmup_iters,
-            cosine_cycle_iters=max_iters
-        )
-        for param_group in optimizer.param_groups:
-            param_group['lr'] = lr
-
-        x_batch, y_batch = get_batch(train_dataset, batch_size, context_length, device)
-        logits = model(x_batch)
-        B, T, C = logits.shape
-        logits_flat = logits.view(B*T, C)
-        targets_flat = y_batch.reshape(-1)
-        loss = cross_entropy(logits_flat, targets_flat)
-
-        optimizer.zero_grad()
-        loss.backward()
-        gradient_clipping(model.parameters(), grad_clip)
-        optimizer.step()
-
-        if it % log_interval == 0:
-            elapsed = time.time() - start_time
-            steps_per_sec = (it - start_iter + 1) / elapsed if elapsed > 0 else 0
-            logger.info(f"Iter {it}: loss {loss.item():.4f}, lr {lr:.6f}, {steps_per_sec:.2f} it/s")
-            if use_wandb:
-                wandb.log({
-                    "train/loss": loss.item(),
-                    "train/learning_rate": lr,
-                    "perf/steps_per_sec": steps_per_sec,
-                    "perf/elapsed_seconds": elapsed,
-                }, step=it)
-
-        if val_dataset is not None and it > 0 and it % eval_interval == 0:
-            val_loss = estimate_loss(
-                model=model,
-                dataset=val_dataset,
-                batch_size=batch_size,
-                context_length=context_length,
-                device=device,
-                eval_iters=eval_iters
+    try:
+        for it in range(start_iter, max_iters):
+            lr = get_lr_cosine_schedule(
+                it=it,
+                max_learning_rate=learning_rate,
+                min_learning_rate=min_learning_rate,
+                warmup_iters=warmup_iters,
+                cosine_cycle_iters=max_iters
             )
-            logger.info(f"Iter {it}: val_loss {val_loss:.4f}")
-            if use_wandb:
-                wandb.log({"val/loss": val_loss}, step=it)
-            if val_loss < best_val_loss:
-                best_val_loss = val_loss
-                save_path = checkpoint_dir / f"{checkpoint_prefix}_best.pt"
-                extra_data = {
-                    'is_best': True,
-                    'val_loss': val_loss,
-                }
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
+
+            x_batch, y_batch = get_batch(train_dataset, batch_size, context_length, device)
+            
+            # 二次确认数据和模型在同一设备上
+            model_device = next(model.parameters()).device
+            x_batch = x_batch.to(model_device)
+            y_batch = y_batch.to(model_device)
+
+            logits = model(x_batch)
+            B, T, C = logits.shape
+            logits_flat = logits.view(B*T, C)
+            targets_flat = y_batch.reshape(-1)
+            loss = cross_entropy(logits_flat, targets_flat)
+
+            optimizer.zero_grad()
+            loss.backward()
+            gradient_clipping(model.parameters(), grad_clip)
+            optimizer.step()
+
+            # Update progress visualization
+            if visualize:
+                if RICH_AVAILABLE:
+                    progress_display.update(training_task, advance=1)
+                    progress_display.update(training_task, description=f"[green]Training - Loss: {loss.item():.4f}, LR: {lr:.6f}")
+                elif TQDM_AVAILABLE:
+                    progress_bar.set_description(f"Loss: {loss.item():.4f}, LR: {lr:.6f}")
+                    progress_bar.update(1)
+
+            # Track training stats
+            if it % log_interval == 0:
+                training_stats["train_loss"].append(loss.item())
+                training_stats["learning_rate"].append(lr)
+                training_stats["iterations"].append(it)
+
+                elapsed = time.time() - start_time
+                steps_per_sec = (it - start_iter + 1) / elapsed if elapsed > 0 else 0
+                logger.info(f"Iter {it}: loss {loss.item():.4f}, lr {lr:.6f}, {steps_per_sec:.2f} it/s")
+                if use_wandb:
+                    wandb.log({
+                        "train/loss": loss.item(),
+                        "train/learning_rate": lr,
+                        "perf/steps_per_sec": steps_per_sec,
+                        "perf/elapsed_seconds": elapsed,
+                    }, step=it)
+
+                # Display a nicely formatted stats table periodically
+                if RICH_AVAILABLE and it > 0 and it % (log_interval * 5) == 0:
+                    stats_table = Table(title=f"Training Stats (Iteration {it})")
+                    stats_table.add_column("Metric", style="cyan")
+                    stats_table.add_column("Value", justify="right")
+                    
+                    stats_table.add_row("Current Loss", f"{loss.item():.4f}")
+                    stats_table.add_row("Learning Rate", f"{lr:.6f}")
+                    stats_table.add_row("Steps/Sec", f"{steps_per_sec:.2f}")
+                    if len(training_stats['train_loss']) > 1:
+                        avg_loss = sum(training_stats['train_loss'][-5:]) / min(5, len(training_stats['train_loss']))
+                        stats_table.add_row("Avg Loss (last 5)", f"{avg_loss:.4f}")
+                    if val_dataset is not None and len(training_stats['val_loss']) > 0:
+                        stats_table.add_row("Best Val Loss", f"{best_val_loss:.4f}")
+                    
+                    console.print(stats_table)
+
+            if val_dataset is not None and it > 0 and it % eval_interval == 0:
+                val_loss = estimate_loss(
+                    model=model,
+                    dataset=val_dataset,
+                    batch_size=batch_size,
+                    context_length=context_length,
+                    device=device,
+                    eval_iters=eval_iters
+                )
+                logger.info(f"Iter {it}: val_loss {val_loss:.4f}")
+                if use_wandb:
+                    wandb.log({"val/loss": val_loss}, step=it)
+                if val_loss < best_val_loss:
+                    best_val_loss = val_loss
+                    save_path = checkpoint_dir / f"{checkpoint_prefix}_best.pt"
+                    extra_data = {
+                        'is_best': True,
+                        'val_loss': val_loss,
+                    }
+                    if use_wandb:
+                        extra_data['wandb_run_id'] = wandb.run.id
+                    save_checkpoint(
+                        model=model,
+                        optimizer=optimizer,
+                        iteration=it,
+                        loss=val_loss,
+                        output_path=save_path,
+                        extra_data=extra_data
+                    )
+                    if use_wandb:
+                        wandb.run.summary["best_val_loss"] = val_loss
+                        wandb.run.summary["best_val_loss_step"] = it
+
+                training_stats["val_loss"].append(val_loss)
+
+            # Generate and display sample text periodically
+            if generate_samples and it > 0 and it % sample_interval == 0:
+                sample_tokens, decoded_text = generate_text_sample(
+                    model=model,
+                    tokenizer=tokenizer,  # Pass the tokenizer
+                    temp=0.8,
+                    max_length=sample_length
+                )
+                
+                if RICH_AVAILABLE:
+                    console.print("\n[bold yellow]Generated Sample Text:[/bold yellow]")
+                    if decoded_text:
+                        console.print(decoded_text)
+                    else:
+                        console.print(f"Token IDs: {sample_tokens[:20]}...{sample_tokens[-20:]}")
+                    console.print("\n")
+                else:
+                    logger.info("Generated Sample:")
+                    if decoded_text:
+                        logger.info(decoded_text)
+                    else:
+                        logger.info(f"Token IDs: {sample_tokens[:20]}...{sample_tokens[-20:]}")
+                
+                # Log sample to wandb if enabled
+                if use_wandb:
+                    if decoded_text:
+                        wandb.log({"samples/text": decoded_text}, step=it)
+                    else:
+                        wandb.log({"samples/token_sequence": wandb.Html(str(sample_tokens))}, step=it)
+
+            if it > 0 and it % checkpoint_interval == 0:
+                save_path = checkpoint_dir / f"{checkpoint_prefix}_{it:06d}.pt"
+                extra_data = {}
                 if use_wandb:
                     extra_data['wandb_run_id'] = wandb.run.id
                 save_checkpoint(
                     model=model,
                     optimizer=optimizer,
                     iteration=it,
-                    loss=val_loss,
+                    loss=loss.item(),
                     output_path=save_path,
                     extra_data=extra_data
                 )
-                if use_wandb:
-                    wandb.run.summary["best_val_loss"] = val_loss
-                    wandb.run.summary["best_val_loss_step"] = it
 
-        if it > 0 and it % checkpoint_interval == 0:
-            save_path = checkpoint_dir / f"{checkpoint_prefix}_{it:06d}.pt"
-            extra_data = {}
-            if use_wandb:
-                extra_data['wandb_run_id'] = wandb.run.id
-            save_checkpoint(
-                model=model,
-                optimizer=optimizer,
-                iteration=it,
-                loss=loss.item(),
-                output_path=save_path,
-                extra_data=extra_data
-            )
+    except KeyboardInterrupt:
+        logger.info("Training interrupted by user")
+        # Save a checkpoint when interrupted
+        interrupted_checkpoint_path = checkpoint_dir / f"{checkpoint_prefix}_interrupted.pt"
+        save_checkpoint(model=model, optimizer=optimizer, iteration=it, 
+                       loss=loss.item(), output_path=interrupted_checkpoint_path)
+        logger.info(f"Saved interrupt checkpoint to {interrupted_checkpoint_path}")
+        
+    finally:
+        # Cleanup visualization
+        if visualize:
+            if RICH_AVAILABLE:
+                progress_display.stop()
+            elif TQDM_AVAILABLE:
+                progress_bar.close()
 
     final_checkpoint_path = checkpoint_dir / f"{checkpoint_prefix}_final.pt"
     extra_data = {
@@ -446,13 +659,30 @@ def train(
         wandb.run.summary["total_training_time"] = time.time() - start_time
         wandb.finish()
 
+    # Training summary with rich if available 
+    if RICH_AVAILABLE:
+        console.print("[bold green]Training Complete![/bold green]")
+        summary_table = Table(title="Training Summary")
+        summary_table.add_column("Metric", style="cyan")
+        summary_table.add_column("Value", justify="right")
+        
+        total_time = time.time() - start_time
+        summary_table.add_row("Total Training Time", f"{total_time:.2f} seconds")
+        summary_table.add_row("Final Train Loss", f"{loss.item():.4f}")
+        if val_dataset is not None:
+            summary_table.add_row("Best Val Loss", f"{best_val_loss:.4f}")
+        summary_table.add_row("Model Parameters", f"{param_count / 1e6:.2f}M")
+        summary_table.add_row("Total Iterations", str(max_iters))
+        
+        console.print(summary_table)
+
     return model
 
 
 def train_tiny_stories(
     data_dir: str = './data',
     output_dir: str = './tiny_stories_model',
-    context_length: int = 512,
+    context_length: int = 256,
     d_model: int = 384,
     num_heads: int = 6,
     num_layers: int = 6,
@@ -464,6 +694,10 @@ def train_tiny_stories(
     use_wandb: bool = False,
     wandb_project: str = "cs336-tinystories",
     wandb_entity: Optional[str] = None,
+    visualize: bool = True,
+    generate_samples: bool = True,
+    vocab_size: Optional[int] = 10000,
+    tokenizer: Optional[BPETokenizer] = None,
 ) -> None:
     """
     Quick training function for language modeling on the TinyStories dataset.
@@ -484,6 +718,10 @@ def train_tiny_stories(
         use_wandb: Whether to use W&B for logging
         wandb_project: W&B project name
         wandb_entity: W&B entity/username (optional)
+        visualize: Whether to use visual progress tracking (requires tqdm or rich)
+        generate_samples: Whether to generate text samples during training
+        vocab_size: Vocabulary size
+        tokenizer: Tokenizer for text generation
     """
     # Prepare directories
     data_dir = Path(data_dir)
@@ -506,14 +744,24 @@ def train_tiny_stories(
     val_data = np.memmap(val_path, dtype=np.int32, mode='r')
 
     # Estimate vocabulary size
-    vocab_size = max(
-        np.max(np.memmap(train_path, dtype=np.int32, mode='r', shape=(100,))),
-        np.max(np.memmap(val_path, dtype=np.int32, mode='r', shape=(100,)))
-    ) + 1
+    try:
+        # Method 1: Random sampling from all training data
+        sample_size = min(100000, len(train_data))
+        random_indices = np.random.choice(len(train_data), sample_size, replace=False)
+        train_sample = train_data[random_indices]
 
-    logger.info(f"Training data size: {len(train_data)} tokens")
-    logger.info(f"Validation data size: {len(val_data)} tokens")
-    logger.info(f"Detected vocabulary size: {vocab_size}")
+
+        # Ensure vocabulary size is within a reasonable range
+        if vocab_size > 100000:
+            logger.warning(f"Detected unusually large vocabulary size: {vocab_size}")
+            logger.warning("Using default BPE vocabulary size of 50257 instead")
+            vocab_size = 50257  # GPT-2 default vocabulary size
+    except Exception as e:
+        logger.warning(f"Error detecting vocabulary size: {e}")
+        logger.warning("Using default vocabulary size of 50257")
+        vocab_size = 50257
+
+    logger.info(f"Using vocabulary size: {vocab_size}")
 
     # Save training config
     config = {
@@ -558,6 +806,10 @@ def train_tiny_stories(
         wandb_project=wandb_project,
         wandb_run_name=wandb_run_name,
         wandb_entity=wandb_entity,
+        visualize=visualize,
+        generate_samples=generate_samples,
+        sample_interval=200,  # Generate samples more frequently for TinyStories
+        tokenizer=tokenizer,  # Pass the tokenizer
     )
 
     logger.info(f"Training completed! Model saved to {output_dir}/checkpoints")
@@ -565,18 +817,21 @@ def train_tiny_stories(
 def train_owt(
     data_dir: str = './data',
     output_dir: str = './owt_model',
-    context_length: int = 1024,
+    context_length: int = 256,
     d_model: int = 768,
     num_heads: int = 12,
     num_layers: int = 12,
     d_ff: int = 3072,
     batch_size: int = 16,
-    max_iters: int = 10000,
+    max_iters: int = 500,
     learning_rate: float = 2e-4,
     device: str = 'mps',
     use_wandb: bool = False,
     wandb_project: str = "cs336-owt",
     wandb_entity: Optional[str] = None,
+    visualize: bool = True,
+    generate_samples: bool = True,
+    sample_interval: int = 500,
     ) -> None:
         """
         Quick training function for language modeling on the OpenWebText dataset.
@@ -595,7 +850,10 @@ def train_owt(
             device: Training device
             use_wandb: Whether to use W&B for logging
             wandb_project: W&B project name
-            wandb_entity: W&B entity/username (optional)
+            wandb_entity: W&B username or team name (optional)
+            visualize: Whether to use visual progress tracking (requires tqdm or rich)
+            generate_samples: Whether to generate text samples during training
+            sample_interval: Generate samples every N iterations
         """
         data_dir = Path(data_dir)
         output_dir = Path(output_dir)
@@ -662,6 +920,9 @@ def train_owt(
             wandb_project=wandb_project,
             wandb_run_name=wandb_run_name,
             wandb_entity=wandb_entity,
+            visualize=visualize,
+            generate_samples=generate_samples,
+            sample_interval=sample_interval,
         )
 
         logger.info(f"OWT training completed! Model saved to {output_dir}/checkpoints")
@@ -680,7 +941,14 @@ if __name__ == "__main__":
     parser.add_argument("--use_wandb", action="store_true", help="Use Weights & Biases logging")
     parser.add_argument("--wandb_project", type=str, default="cs336-lm", help="W&B project name")
     parser.add_argument("--wandb_entity", type=str, default=None, help="W&B username or team name")
-
+    
+    # Add new visualization arguments
+    parser.add_argument("--visualize", action="store_true", help="Use visual progress tracking", default=True)
+    parser.add_argument("--no-visualize", action="store_false", dest="visualize", help="Disable visual progress tracking")
+    parser.add_argument("--generate-samples", action="store_true", help="Generate text samples during training", default=True)
+    parser.add_argument("--no-generate-samples", action="store_false", dest="generate_samples", help="Disable text sample generation")
+    parser.add_argument("--sample-interval", type=int, default=500, help="Generate samples every N iterations")
+    
     args = parser.parse_args()
 
     # Select training function based on dataset
@@ -691,7 +959,9 @@ if __name__ == "__main__":
             device=args.device,
             use_wandb=args.use_wandb,
             wandb_project=args.wandb_project,
-            wandb_entity=args.wandb_entity
+            wandb_entity=args.wandb_entity,
+            visualize=args.visualize,
+            generate_samples=args.generate_samples,
         )
     elif args.dataset == "owt":
         train_owt(
@@ -700,7 +970,10 @@ if __name__ == "__main__":
             device=args.device,
             use_wandb=args.use_wandb,
             wandb_project=args.wandb_project,
-            wandb_entity=args.wandb_entity
+            wandb_entity=args.wandb_entity,
+            visualize=args.visualize,
+            generate_samples=args.generate_samples,
+            sample_interval=args.sample_interval,
         )
     else:
         raise ValueError("Invalid dataset. Choose 'tinystories' or 'owt'.")

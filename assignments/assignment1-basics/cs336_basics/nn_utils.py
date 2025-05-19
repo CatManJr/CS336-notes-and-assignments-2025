@@ -120,8 +120,8 @@ class RotaryPositionalEmbedding(nn.Module):
         Apply RoPE to input tensor.
         
         Args:
-            x: Input tensor of shape (..., seq_len, d_k)
-            token_positions: Tensor of shape (..., seq_len) with token positions
+            x: Input tensor of shape (batch_size, num_heads, seq_len, d_k)
+            token_positions: Tensor of shape (batch_size, seq_len) with token positions
             
         Returns:
             Tensor of same shape as x with rotary position embeddings applied
@@ -131,21 +131,25 @@ class RotaryPositionalEmbedding(nn.Module):
         seq_len = orig_shape[-2]
         
         # Reshape to handle batch dimensions
-        # We need to view x as (..., seq_len, d_k/2, 2) to work on pairs
+        # We need to view x as (batch_size, num_heads, seq_len, d_k/2, 2) to work on pairs
         x = x.view(*x.shape[:-1], -1, 2)
         
         # Get the cos and sin values for the positions in this sequence
         # First, we need to ensure token_positions are valid indices
         valid_positions = torch.clamp(token_positions, 0, self.max_seq_len - 1)
         
-        # Select the right cos/sin values for these positions, shape: (..., seq_len, d_k/2)
-        cos = self.cos[valid_positions]  # shape: (..., seq_len, d_k/2)
-        sin = self.sin[valid_positions]  # shape: (..., seq_len, d_k/2)
+        # Select the right cos/sin values for these positions
+        # Expand cos/sin to match the batch dimensions of x
+        cos = self.cos[valid_positions]  # shape: (batch_size, seq_len, d_k/2)
+        sin = self.sin[valid_positions]  # shape: (batch_size, seq_len, d_k/2)
+        
+        # Add head dimension for broadcasting
+        cos = cos.unsqueeze(1)  # shape: (batch_size, 1, seq_len, d_k/2)
+        sin = sin.unsqueeze(1)  # shape: (batch_size, 1, seq_len, d_k/2)
         
         # Extract even and odd dimensions
-        # Reshape x to (..., seq_len, d_k/2, 2)
-        x_even = x[..., 0]  # shape: (..., seq_len, d_k/2)
-        x_odd = x[..., 1]   # shape: (..., seq_len, d_k/2)
+        x_even = x[..., 0]  # shape: (batch_size, num_heads, seq_len, d_k/2)
+        x_odd = x[..., 1]   # shape: (batch_size, num_heads, seq_len, d_k/2)
         
         # Apply the rotation: 
         # [cos -sin] [x_even]

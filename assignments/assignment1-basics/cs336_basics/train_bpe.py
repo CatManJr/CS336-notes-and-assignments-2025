@@ -316,21 +316,61 @@ class TrainBPE:
                 
         return self.vocab, self.merges
 
-def save_tokenizer(vocab: dict, merges: list, vocab_path: str | Path, merges_path: str | Path):
+def bytes_to_unicode():
     """
-    Save the vocabulary and merges to files.
-    
+    Returns a dictionary mapping byte values (0-255) to unicode strings.
+    This is used to ensure a reversible mapping between bytes and unicode for BPE.
+    """
+    bs = list(range(33, 127)) + list(range(161, 173)) + list(range(174, 256))
+    cs = bs[:]
+    n = 0
+    for b in range(256):
+        if b not in bs:
+            bs.append(b)
+            cs.append(256 + n)
+            n += 1
+    byte_to_unicode = dict(zip(bs, (chr(c) for c in cs)))
+    return byte_to_unicode
+
+def unicode_to_bytes():
+    """
+    Returns a dictionary mapping unicode strings to byte values (0-255).
+    This is used to ensure a reversible mapping between unicode and bytes for BPE.
+    """
+    byte_to_unicode = bytes_to_unicode()
+    # Invert the mapping: unicode char -> byte value
+    return {v: k for k, v in byte_to_unicode.items()}
+
+def save_tokenizer(vocab, merges, vocab_path, merges_path):
+    """
+    Save the tokenizer vocabulary and merges to disk.
+
     Args:
-        vocab: Dictionary mapping token IDs to token bytes
-        merges: List of byte pairs that were merged
-        vocab_path: Path to save the vocabulary JSON file
+        vocab: Dictionary mapping token indices to token bytes
+        merges: List of BPE merges
+        vocab_path: Path to save the vocabulary 
         merges_path: Path to save the merges text file
     """
-    # Save vocabulary
-    with open(vocab_path, 'w') as f:
-        json.dump({str(k): list(v) for k, v in vocab.items()}, f)
+    byte_encoder = bytes_to_unicode()
     
-    # Save merges
-    with open(merges_path, 'w') as f:
-        for pair in merges:
-            f.write(f"{pair[0].decode('utf-8', errors='replace')} {pair[1].decode('utf-8', errors='replace')}\n")
+    # Create the vocab dict in the desired format: {id: unicode_str, ...}
+    with open(vocab_path, 'w', encoding='utf-8') as f:
+        f.write("{")
+        for i, (token_id, token_bytes) in enumerate(vocab.items()):
+            # Convert bytes to unicode string
+            token_str = ''.join(byte_encoder[b] for b in token_bytes)
+            # Format the entry with proper escaping for Unicode characters
+            entry = f"{token_id}: \"{token_str}\""
+            # Add comma after all entries except the last one
+            if i < len(vocab) - 1:
+                entry += ", "
+            f.write(entry)
+        f.write("}")
+
+    # Save merges as a text file
+    with open(merges_path, 'w', encoding='utf-8') as f:
+        f.write("#version: 0.2\n")
+        for first, second in merges:
+            first_str = ''.join(byte_encoder[b] for b in first)
+            second_str = ''.join(byte_encoder[b] for b in second)
+            f.write(f"{first_str} {second_str}\n")

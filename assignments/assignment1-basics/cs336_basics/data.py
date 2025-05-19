@@ -11,6 +11,7 @@ def get_batch(
 ) -> Tuple[torch.Tensor, torch.Tensor]:
     """
     Sample language modeling input sequences and corresponding labels from the dataset.
+    Optimized version for large batch sizes.
     
     Args:
         dataset: A one-dimensional numpy array containing integer token IDs
@@ -36,20 +37,15 @@ def get_batch(
         raise RuntimeError("Dataset too small for the given context length")
     
     # Uniformly sample random starting indices
-    # Using numpy randint, includes 0, excludes max_start+1
     starts = np.random.randint(0, max_start + 1, size=batch_size)
     
-    # Build x and y batches
-    # x: each sample is context_length tokens starting from the random starting position
-    # y: each sample is context_length tokens starting from the random starting position + 1
-    x = torch.stack([torch.from_numpy(dataset[s:s + context_length]).long() for s in starts])
-    y = torch.stack([torch.from_numpy(dataset[s + 1:s + 1 + context_length]).long() for s in starts])
+    # Pre-allocate tensors on the target device
+    x = torch.empty((batch_size, context_length), dtype=torch.long, device=dev)
+    y = torch.empty((batch_size, context_length), dtype=torch.long, device=dev)
     
-    # Move to device
-    try:
-        x = x.to(dev)
-        y = y.to(dev)
-    except Exception as e:
-        raise RuntimeError(f"CUDA error or invalid device: {device}") from e
-        
+    # Use vectorized operations to fill the tensors
+    for i, start in enumerate(starts):
+        x[i] = torch.from_numpy(dataset[start:start + context_length])
+        y[i] = torch.from_numpy(dataset[start + 1:start + 1 + context_length])
+    
     return x, y
