@@ -1,6 +1,6 @@
 {
   "files": {
-    "lecture_12.py": "from execute_util import text, link, image\nfrom lecture_util import x_link, blog_link\nfrom references import deepseek_r1, llama4, olmo2_32b, mmlu\n\ndef main():\n    text(\"**Evaluation**: given a **fixed model**, how \\\"**good**\\\" is it?\")\n\n    what_you_see()\n    how_to_think_about_evaluation()  \n\n    perplexity()\n\n    knowledge_benchmarks()\n    instruction_following_benchmarks()\n    agent_benchmarks()\n    pure_reasoning_benchmarks()\n    safety_benchmarks()\n\n    realism()\n    validity()\n    what_are_we_evaluating()\n\n\ndef what_you_see():\n    text(\"## Benchmark scores\")\n    image(\"images/deepseek-r1-benchmarks.png\", width=800), link(deepseek_r1)\n    image(\"images/llama4-benchmarks.png\", width=800), link(llama4)\n    image(\"https://www.datocms-assets.com/64837/1741887109-instruct-1.png\", width=800), link(olmo2_32b)\n\n    text(\"Recent language models are evaluated on similar, but not entirely identical, benchmarks (MMLU, MATH, etc.).\")\n    text(\"What are these benchmarks?\")\n    text(\"What do these numbers mean?\")\n\n    image(\"images/helm-capabilities-leaderboard.png\", width=1000)\n    link(title=\"[HELM capabilities]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard\")\n    \n    text(\"Pay close attention to the costs!\")\n    image(\"images/artificial-analysis.png\", width=800), link(title=\"[Artificial Analysis]\", url=\"https://artificialanalysis.ai/\")\n\n    text(\"Maybe a model is good if people choose to use it (and pay for it)...\")\n    image(\"images/openrouter.png\", width=600), link(title=\"[OpenRouter]\", url=\"https://openrouter.ai/rankings\")\n\n    image(\"images/chatbot-arena-leaderboard.png\", width=800)\n    link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")\n\n    text(\"## Vibes\")\n    link(\"https://x.com/demishassabis/status/1919779362980692364\")\n    image(\"images/demis-gemini-2.5.png\", width=500)\n\n    text(\"A crisis...\")\n    image(\"images/karpathy-crisis.png\", width=600)\n\n\ndef how_to_think_about_evaluation():\n    text(\"You might think evaluation is a mechanical process (take existing model, throw prompts at it, average some numbers)...\")\n    text(\"Actually, evaluation is a profound and rich topic...\")\n    text(\"...and it determines the future of language models.\")\n\n    text(\"What's the point of evaluation?\")\n    text(\"There is no one true evaluation; it depends on what question you're trying to answer.\")\n    text(\"1. User or company wants to make a purchase decision (model A or model B) for their use case (e.g., customer service chatbots).\")\n    text(\"2. Researchers want to measure the raw capabilities of a model (e.g., intelligence).\")\n    text(\"3. We want to understand the benefits + harms of a model (for business and policy reasons).\")\n    text(\"4. Model developers want to get feedback to improve the model.\")\n    text(\"In each case, there is an abstract **goal** that needs to be translated into a concrete evaluation.\")\n\n    text(\"Framework\")\n    text(\"1. What are the **inputs**?\")\n    text(\"2. How do **call** the language model?\")\n    text(\"3. How do you evaluate the **outputs**?\")\n    text(\"4. How to **interpret** the results?\")\n\n    text(\"What are the inputs?\")\n    text(\"1. What use cases are **covered**?\")\n    text(\"2. Do we have representation of **difficult** inputs in the tail?\")\n    text(\"3. Are the inputs **adapted** to the model (e.g., multi-turn)?\")\n\n    text(\"How do you call the language model?\")\n    text(\"1. How do you prompt the language model?\")\n    text(\"2. Does the language model use chain-of-thought, tools, RAG, etc.?\")\n    text(\"3. Are we evaluating the language model or an agentic system (model developer wants former, user wants latter)?\")\n\n    text(\"How do you evaluate the outputs?\")\n    text(\"1. Are the reference outputs used for evaluation error-free?\")\n    text(\"2. What metrics do you use (e.g., pass@k)?\")\n    text(\"3. How do you factor in cost (e.g., inference + training)?\")\n    text(\"4. How do you factor in asymmetric errors (e.g., hallucinations in a medical setting)?\")\n    text(\"5. How do you handle open-ended generation (no ground truth)?\")\n\n    text(\"How do you inteprret the metrics?\")\n    text(\"1. How do you interpret a number (e.g., 91\\%) - is it ready for deployment?\")\n    text(\"2. How do we assess generalization in the face of train-test overlap?\")\n    text(\"3. Are we evaluating the final model or the method?\")\n\n    text(\"Summary: lots of questions to think through when doing evaluation\")\n\ndef perplexity():\n    text(\"Recall: that a language model is a probability distribution **p(x)** over sequences of tokens.\")\n    text(\"Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D.\")\n\n    text(\"In pre-training, you minimize perplexity on the training set.\")\n    text(\"The obvious thing is to measure perplexity on the test set.\")\n\n    text(\"Standard datasets: Penn Treebank (WSJ), WikiText-103 (Wikipedia), One Billion Word Benchmark (from machine translation WMT11 - EuroParl, UN, news)\")\n    text(\"Papers trained on a dataset (training split) and evaluated on the same dataset (test split)\")\n    text(\"Pure CNNs+LSTMs on the One Billion Word Benchmark (perplexity 51.3 -> 30.0) \"), link(\"https://arxiv.org/abs/1602.02410\")\n\n    text(\"GPT-2 trained on WebText (40GB text, websites linked from Reddit), zero-shot on standard datasets\")\n    text(\"This is out-of-distribution evaluation (but idea is that training covers a lot)\")\n    image(\"images/gpt2-perplexity.png\", width=800)\n    text(\"Works better on small datasets (transfer is helpful), but not larger datasets (1BW)\")\n\n    text(\"Since GPT-2 and GPT-3, language modeling papers have shifted more towards downstream task accuracy.\")\n    text(\"But reasons why perplexity is still useful:\")\n    text(\"- Smoother than downstream task accuracy (for fitting scaling laws)\")\n    text(\"- Is universal (why we use it for training) whereas task accuracy might miss some nuances\")\n    text(\"- Note: can measure conditional perplexity on downstream task too (used for scaling laws) \"), link(\"https://arxiv.org/abs/2412.04403\")\n\n    text(\"Warning (if you're running a leaderboard): evaluator needs to trust the language model\")\n    text(\"For task accuracy, can just take output generated from a blackbox model and compute the desired metrics\")\n    text(\"For perplexity, need LM to generate probabilities and trust that they sum to 1 (even worse with UNKs back in the day)\")\n\n    text(\"The perplexity maximalist view:\")\n    text(\"- Your true distribution is t, model is p\")\n    text(\"- Best possible perplexity is H(t) obtained iff p = t\")\n    text(\"- If have t, then solve all the tasks\")\n    text(\"- So by pushing down on perplexity, will eventually reach AGI\")\n    text(\"- Caveat: this might not be the most efficient way to get there (pushing down on parts of the distribution that don't matter)\")\n\n    text(\"Things that are spiritually perplexity:\")\n    text(\"Similar idea: cloze tasks like LAMBADA \"), link(\"https://arxiv.org/abs/1606.06031\")\n    image(\"images/lambada.png\", width=800)\n    text(\"HellaSwag \"), link(\"https://arxiv.org/pdf/1905.07830\")\n    image(\"images/hellaswag.png\", width=600)\n\n\ndef knowledge_benchmarks():\n    text(\"## Massive Multitask Language Understanding (MMLU)\"), link(mmlu)\n    text(\"57 subjects (e.g., math, US history, law, morality), multiple-choice\")\n    text(\"\\\"collected by graduate and undergraduate students from freely available sources online\\\"\")\n    text(\"Really about testing knowledge, not language understanding\")\n    text(\"Evaluated on GPT-3 using few-shot prompting\")\n    image(\"images/mmlu.png\", width=800)\n    link(title=\"[HELM MMLU for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/mmlu/latest/\")\n\n    text(\"### MMLU-Pro\"), link(\"https://arxiv.org/abs/2406.01574\")\n    text(\"Removed noisy/trivial questions from MMLU\")\n    text(\"Expanded 4 choices to 10 choices\")\n    text(\"Evaluated using chain of thought (gives model more of a chance)\")\n    text(\"Accuracy of models drop by 16\\% to 33\\% (not as saturated)\")\n    image(\"images/mmlu-pro.png\", width=800)\n    link(title=\"[HELM MMLU-Pro for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/mmlu_pro\")\n\n    text(\"### Graduate-Level Google-Proof Q&A (GPQA)\"), link(\"https://arxiv.org/abs/2311.12022\")\n    text(\"Questions written by 61 PhD contractors from Upwork\")\n    image(\"images/gpqa.png\", width=800)\n    text(\"PhD experts achieve 65% accuracy\")\n    text(\"Non-experts achieve 34% over 30 minutes with access to Google\")\n    text(\"GPT-4 achieves 39%\")\n    link(title=\"[HELM GPQA for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/gpqa\")\n\n    text(\"### Humanity's Last Exam\"), link(\"https://arxiv.org/abs/2501.14249\")\n    text(\"2500 questions: multimodal, many subjects, multiple-choice + short-answer\")\n    image(\"images/hle-examples.png\", width=800)\n    text(\"Awarded $500K prize pool + co-authorship to question creators\")\n    text(\"Filtered by frontier LLMs, multiple stages of review\")\n    image(\"images/hle-pipeline.png\", width=800)\n    image(\"images/hle-results.png\", width=800)\n    link(title=\"[latest leaderboard]\", url=\"https://agi.safe.ai/\")\n\n\ndef instruction_following_benchmarks():\n    text(\"So far, we've been evaluating on fairly structured tasks.\")\n    text(\"Instruction following (as popularized by ChatGPT): just follow the instructions.\")\n    text(\"Challenge: how to evaluate an open-ended response?\")\n\n    text(\"## Chatbot Arena\"), link(\"https://arxiv.org/abs/2403.04132\")\n    text(\"How it works:\")\n    text(\"- Random person from the Internet types in prompt\")\n    text(\"- They get response from two random (anonymized) models\")\n    text(\"- They rate which one is better\")\n    text(\"- ELO scores are computed based on the pairwise comparisons\")\n    text(\"Features: live (not static) inputs, can accomodate new models\")\n    image(\"images/chatbot-arena-leaderboard.png\", width=800)\n    link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")\n\n    text(\"## Instruction-Following Eval (IFEval)\"), link(\"https://arxiv.org/abs/2311.07911\")\n    image(\"images/ifeval-categories.png\", width=700)\n    text(\"Add simple synthetic constraints to instructions\")\n    text(\"Constraints can be automatically verified, but not the semantics of the response\")\n    text(\"Fairly simple instructions, constraints are a bit artificial\")\n    link(title=\"[HELM IFEval for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/ifeval\")\n\n    text(\"## AlpacaEval \"), link(\"https://tatsu-lab.github.io/alpaca_eval/\")\n    text(\"805 instructions from various sources\")\n    text(\"Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)\")\n    image(\"images/alpacaeval-leaderboard.png\", width=600)\n\n    text(\"## WildBench\"), link(\"https://arxiv.org/pdf/2406.04770\")\n    text(\"Sourced 1024 examples from 1M human-chatbot conversations\")\n    text(\"Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge\")\n    text(\"Well-correlated (0.95) with Chatbot Arena\")\n    image(\"images/wildbench.png\", width=800)\n    link(title=\"[HELM WildBench for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/wildbench\")\n\n\ndef agent_benchmarks():\n    text(\"Consider tasks that require tool use (e.g., running code) and iterating over a period of time\")\n    text(\"Agent = language model + agent scaffolding (logic for deciding how to use the LM)\")\n\n    text(\"## SWEBench\"), link(\"https://arxiv.org/abs/2310.06770\")\n    text(\"2294 tasks across 12 Python repositories\")\n    text(\"Given codebase + issue description, submit a PR\")\n    text(\"Evaluation metric: unit tests\")\n    image(\"images/swebench.png\", width=800)\n\n    text(\"## CyBench\"), link(\"https://arxiv.org/abs/2408.08926\")\n    image(\"images/cybench.png\", width=800)\n    image(\"images/cybench-agent.png\", width=800)\n    image(\"images/cybench-results.png\", width=800)\n\n    text(\"## MLEBench\"), link(\"https://arxiv.org/abs/2410.07095\")\n    text(\"75 Kaggle competitions (require training models, processing data, etc.)\")\n    image(\"images/mlebench.png\", width=800)\n    image(\"images/mlebench-results.png\", width=800)\n\n\ndef pure_reasoning_benchmarks():\n    text(\"All of the tasks so far require linguistic and world knowledge\")\n    text(\"Can we isolate reasoning from knowledge?\")\n    text(\"Arguably, reasoning captures a more pure form of intelligence (isn't just about memorizing facts)\")\n\n    text(\"ARC-AGI\"), link(\"https://arcprize.org/arc-agi\")\n    text(\"Introduced in 2019 by Francois Chollet\")\n\n    text(\"ARC-AGI-1\")\n    image(\"https://arcprize.org/media/images/arc-task-grids.jpg\", width=800)\n    image(\"https://arcprize.org/media/images/oseriesleaderboard.png\", width=800)\n\n    text(\"ARC-AGI-2\")\n    image(\"https://arcprize.org/media/images/blog/arc-agi-2-unsolved-1.png\", width=800)\n\n\ndef safety_benchmarks():\n    image(\"https://www.team-bhp.com/forum/attachments/road-safety/2173645d1625144681-will-crash-test-rating-change-if-higher-variant-chosen-images-30.jpeg\", width=800)\n    text(\"What does safety mean for AI?\")\n\n    link(title=\"[HELM safety: curated set of benchmarks]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard\")\n\n    text(\"## HarmBench\"), link(\"https://arxiv.org/abs/2402.04249\")\n    text(\"Given 510 harmful behaviors that violate laws or norms\")\n    link(title=\"[HarmBench on HELM]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard/harm_bench\")\n    link(title=\"[Example of safety failure]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/runs/harm_bench:model=anthropic_claude-3-7-sonnet-20250219?instancesPage=4\")\n\n    text(\"## AIR-Bench\"), link(\"https://arxiv.org/abs/2407.17436\")\n    text(\"Based on regulatory frameworks and company policies\")\n    text(\"Taxonomized into 314 risk categories, 5694 prompts\")\n    image(\"https://crfm.stanford.edu/helm/assets/air-overview-d2e6c49f.png\", width=800)\n    link(title=\"[HELM AIR-Bench]\", url=\"https://crfm.stanford.edu/helm/air-bench/latest/#/leaderboard\")\n\n    text(\"## Jailbreaking\")\n    text(\"Language models are trained to refuse harmful instructions\")\n    text(\"Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety \"), link(\"https://arxiv.org/pdf/2307.15043\")\n    text(\"Transfers from open-weight models (Llama) to closed models (GPT-4)\")\n    image(\"images/gcg-examples.png\", width=800)\n\n    text(\"## Pre-deployment testing\")\n    text(\"US Safety Institute + UK AI Safety Institute working together\")\n    text(\"Company gives safety institutes access to model before release (currently voluntary)\")\n    text(\"Safety institutes run evaluations and produce a report to company\")\n    image(\"https://www.nist.gov/system/files/documents/2024/12/18/US_UK_AI%20Safety%20Institute_%20December_Publication-OpenAIo1.pdf\", width=800)\n\n    text(\"## What is safety?\")\n    text(\"Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)\")\n    text(\"Naively, one might think safety is about refusal and is at odds with capability, but there's more...\")\n    text(\"Hallucinations in a medical setting makes systems more capable and more safe\")\n\n    text(\"Two things: capabilities + propensity\")\n    text(\"A system could be capable of doing something, but refuse to do it\")\n    text(\"For API model, propensity matters\")\n    text(\"For open weight models, capability matters (since can easily fine-tune safety away)\")\n\n    text(\"Dual-use: capable cybersecurity agents (do well on Cybench) can be used to hack into a system or to do penetration testing\")\n    text(\"CyBench is used by the safety institute as a safety evaluation, but is it really a capability evaluation?\")\n\n\ndef realism():\n    text(\"Language models are used heavily in practice:\")\n    image(\"images/openai-100b-tokens.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/sama/status/1756089361609981993\")\n    image(\"images/cursor-1b-lines.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/amanrsanger/status/1916968123535880684\")\n\n    text(\"However, most existing benchmarks (e.g., MMLU) are far away from real-world use\")\n    text(\"Live traffic from real people contain garbage, that's not exactly what we want either\")\n\n    text(\"Two types of prompts:\")\n    text(\"1. Quizzing: User knows the answer and trying to test the system (think standardized exams).\")\n    text(\"2. Asking: User doesn't know the answer is trying to use the system to get it.\")\n    text(\"Asking is more realistic and produces value for the user.\")\n\n    text(\"## Clio from Anthropic\"), link(\"https://arxiv.org/abs/2412.13678\")\n    text(\"Use language models to analyze real user data\")\n    text(\"Share general patterns of what people are asking\")\n    image(\"https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F7d27ae68696871a7fc0e49d219ae3b7bc0fe98d0-2401x1520.png\", width=800)\n\n    text(\"## MedHELM\"), link(\"https://arxiv.org/abs/2412.13678\")\n    text(\"Previous medical benchmarks were based on standardized exams\")\n    text(\"121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets\")\n    image(\"https://crfm.stanford.edu/helm/assets/medhelm-overview-3ddfcd65.png\", width=800)\n    link(title=\"[MedHELM]\", url=\"https://crfm.stanford.edu/helm/medhelm/latest/#/leaderboard\")\n\n    text(\"Unfortunately, realism and privacy are at odds.\")\n\n\ndef validity():\n    text(\"How do we know our evaluations are valid?\")\n\n    text(\"## Train-test overlap\")\n    text(\"Machine learning 101: don't train on your test set\")\n    text(\"Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits\")\n    text(\"Nowadays: train on the Internet and don't tell people about your data\")\n    \n    text(\"Route 1: try to infer train-test overlap from model\")\n    text(\"Exploiting exchangeability in the benchmark\"), link(\"https://arxiv.org/pdf/2310.17623\")\n    image(\"images/contamination-exchangeability.png\", width=600)\n\n    text(\"Route 2: encourage reporting norms (e.g., people report confidence intervals)\")\n    text(\"Model providers should report train-test overlap \"), link(\"https://arxiv.org/abs/2410.08385\")\n    image(\"images/train-test-overlap-companies.png\", width=600)\n\n    text(\"## Dataset quality\")\n    text(\"Fixed up SWE-Bench to produce SWE-Bench Verified \"), blog_link(\"https://openai.com/index/introducing-swe-bench-verified/\")\n    text(\"Create Platinum versions of benchmarks\"), link(\"https://arxiv.org/abs/2502.03461\")\n    image(\"https://pbs.twimg.com/media/GjICXQlWkAAYnDS?format=jpg&name=4096x4096\", width=700)\n    image(\"https://pbs.twimg.com/media/GjICcGQXYAAM4o1?format=jpg&name=4096x4096\", width=800)\n    \n\ndef what_are_we_evaluating():\n    text(\"What are we even evaluating?\")\n    text(\"In other words, what are the rules of a game?\")\n\n    text(\"Pre-foundation models, we evaluated methods (standardized train-test splits)\")\n    text(\"Today, we're evaluating a system (anything goes)\")\n\n    text(\"There are some exceptions...\")\n    text(\"nanogpt speedrun: fixed data, compute time to get to a particular validation loss\")\n    image(\"images/karpathy-nanogpt-speedrun.png\", width=600), x_link(\"https://x.com/karpathy/status/1846790537262571739\")\n    text(\"DataComp-LM: given a raw dataset, get the best accuracy using standard training pipeline \"), link(\"https://arxiv.org/abs/2406.11794\")\n    text(\"These encourage algorithmic innovation from researchers.\")\n    text(\"Evaluating systems is useful for users.\")\n\n    text(\"Need to define the rules of the game!\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
+    "lecture_12.py": "from execute_util import text, link, image\nfrom lecture_util import x_link, blog_link\nfrom references import deepseek_r1, llama4, olmo2_32b, mmlu\n\ndef main():\n    text(\"**Evaluation**: given a **fixed model**, how \\\"**good**\\\" is it?\")\n\n    what_you_see()\n    how_to_think_about_evaluation()\n\n    perplexity()\n\n    knowledge_benchmarks()\n    instruction_following_benchmarks()\n    agent_benchmarks()\n    pure_reasoning_benchmarks()\n    safety_benchmarks()\n\n    realism()\n    validity()\n    what_are_we_evaluating()\n\n    text(\"Takeaways\")\n    text(\"- There is no one true evaluation; choose the evaluation depending on what you're trying to measure.\")\n    text(\"- Always look at the individual instances and the predictions.\")\n    text(\"- There are many aspects to consider: capabilities, safety, costs, realism.\")\n    text(\"- Clearly state the rules of the game (methods versus models/systems).\")\n\n\ndef what_you_see():\n    text(\"## Benchmark scores\")\n    image(\"images/deepseek-r1-benchmarks.png\", width=800), link(deepseek_r1)\n    image(\"images/llama4-benchmarks.png\", width=800), link(llama4)\n    image(\"https://www.datocms-assets.com/64837/1741887109-instruct-1.png\", width=800), link(olmo2_32b)\n\n    text(\"Recent language models are evaluated on similar, but not entirely identical, benchmarks (MMLU, MATH, etc.).\")\n    text(\"What are these benchmarks?\")\n    text(\"What do these numbers mean?\")\n\n    image(\"images/helm-capabilities-leaderboard.png\", width=1000)\n    link(title=\"[HELM capabilities]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard\")\n\n    text(\"Pay close attention to the costs!\")\n    image(\"images/artificial-analysis.png\", width=800), link(title=\"[Artificial Analysis]\", url=\"https://artificialanalysis.ai/\")\n\n    text(\"Maybe a model is good if people choose to use it (and pay for it)...\")\n    image(\"images/openrouter.png\", width=600), link(title=\"[OpenRouter]\", url=\"https://openrouter.ai/rankings\")\n\n    image(\"images/chatbot-arena-leaderboard.png\", width=800)\n    link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")\n\n    text(\"## Vibes\")\n    x_link(\"https://x.com/demishassabis/status/1919779362980692364\")\n    image(\"images/demis-gemini-2.5.png\", width=500)\n\n    text(\"A crisis...\")\n    image(\"images/karpathy-crisis.png\", width=600)\n\n\ndef how_to_think_about_evaluation():\n    text(\"You might think evaluation is a mechanical process (take existing model, throw prompts at it, average some numbers)...\")\n    text(\"Actually, evaluation is a profound and rich topic...\")\n    text(\"...and it determines the future of language models.\")\n\n    text(\"What's the point of evaluation?\")\n    text(\"There is no one true evaluation; it depends on what question you're trying to answer.\")\n    text(\"1. User or company wants to make a purchase decision (model A or model B) for their use case (e.g., customer service chatbots).\")\n    text(\"2. Researchers want to measure the raw capabilities of a model (e.g., intelligence).\")\n    text(\"3. We want to understand the benefits + harms of a model (for business and policy reasons).\")\n    text(\"4. Model developers want to get feedback to improve the model.\")\n    text(\"In each case, there is an abstract **goal** that needs to be translated into a concrete evaluation.\")\n\n    text(\"Framework\")\n    text(\"1. What are the **inputs**?\")\n    text(\"2. How do **call** the language model?\")\n    text(\"3. How do you evaluate the **outputs**?\")\n    text(\"4. How to **interpret** the results?\")\n\n    text(\"What are the inputs?\")\n    text(\"1. What use cases are **covered**?\")\n    text(\"2. Do we have representation of **difficult** inputs in the tail?\")\n    text(\"3. Are the inputs **adapted** to the model (e.g., multi-turn)?\")\n\n    text(\"How do you call the language model?\")\n    text(\"1. How do you prompt the language model?\")\n    text(\"2. Does the language model use chain-of-thought, tools, RAG, etc.?\")\n    text(\"3. Are we evaluating the language model or an agentic system (model developer wants former, user wants latter)?\")\n\n    text(\"How do you evaluate the outputs?\")\n    text(\"1. Are the reference outputs used for evaluation error-free?\")\n    text(\"2. What metrics do you use (e.g., pass@k)?\")\n    text(\"3. How do you factor in cost (e.g., inference + training)?\")\n    text(\"4. How do you factor in asymmetric errors (e.g., hallucinations in a medical setting)?\")\n    text(\"5. How do you handle open-ended generation (no ground truth)?\")\n\n    text(\"How do you inteprret the metrics?\")\n    text(\"1. How do you interpret a number (e.g., 91%) - is it ready for deployment?\")\n    text(\"2. How do we assess generalization in the face of train-test overlap?\")\n    text(\"3. Are we evaluating the final model or the method?\")\n\n    text(\"Summary: lots of questions to think through when doing evaluation\")\n\ndef perplexity():\n    text(\"Recall: that a language model is a probability distribution **p(x)** over sequences of tokens.\")\n    text(\"Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D.\")\n\n    text(\"In pre-training, you minimize perplexity on the training set.\")\n    text(\"The obvious thing is to measure perplexity on the test set.\")\n\n    text(\"Standard datasets: Penn Treebank (WSJ), WikiText-103 (Wikipedia), One Billion Word Benchmark (from machine translation WMT11 - EuroParl, UN, news)\")\n    text(\"Papers trained on a dataset (training split) and evaluated on the same dataset (test split)\")\n    text(\"Pure CNNs+LSTMs on the One Billion Word Benchmark (perplexity 51.3 -> 30.0) \"), link(\"https://arxiv.org/abs/1602.02410\")\n\n    text(\"GPT-2 trained on WebText (40GB text, websites linked from Reddit), zero-shot on standard datasets\")\n    text(\"This is out-of-distribution evaluation (but idea is that training covers a lot)\")\n    image(\"images/gpt2-perplexity.png\", width=800)\n    text(\"Works better on small datasets (transfer is helpful), but not larger datasets (1BW)\")\n\n    text(\"Since GPT-2 and GPT-3, language modeling papers have shifted more towards downstream task accuracy.\")\n    text(\"But reasons why perplexity is still useful:\")\n    text(\"- Smoother than downstream task accuracy (for fitting scaling laws)\")\n    text(\"- Is universal (why we use it for training) whereas task accuracy might miss some nuances\")\n    text(\"- Note: can measure conditional perplexity on downstream task too (used for scaling laws) \"), link(\"https://arxiv.org/abs/2412.04403\")\n\n    text(\"Warning (if you're running a leaderboard): evaluator needs to trust the language model\")\n    text(\"For task accuracy, can just take output generated from a blackbox model and compute the desired metrics\")\n    text(\"For perplexity, need LM to generate probabilities and trust that they sum to 1 (even worse with UNKs back in the day)\")\n\n    text(\"The perplexity maximalist view:\")\n    text(\"- Your true distribution is t, model is p\")\n    text(\"- Best possible perplexity is H(t) obtained iff p = t\")\n    text(\"- If have t, then solve all the tasks\")\n    text(\"- So by pushing down on perplexity, will eventually reach AGI\")\n    text(\"- Caveat: this might not be the most efficient way to get there (pushing down on parts of the distribution that don't matter)\")\n\n    text(\"Things that are spiritually perplexity:\")\n    text(\"Similar idea: cloze tasks like LAMBADA \"), link(\"https://arxiv.org/abs/1606.06031\")\n    image(\"images/lambada.png\", width=800)\n    text(\"HellaSwag \"), link(\"https://arxiv.org/pdf/1905.07830\")\n    image(\"images/hellaswag.png\", width=600)\n\n\ndef knowledge_benchmarks():\n    text(\"### Massive Multitask Language Understanding (MMLU)\")\n    link(mmlu)\n    text(\"- 57 subjects (e.g., math, US history, law, morality), multiple-choice\")\n    text(\"- \\\"collected by graduate and undergraduate students from freely available sources online\\\"\")\n    text(\"- Really about testing knowledge, not language understanding\")\n    text(\"- Evaluated on GPT-3 using few-shot prompting\")\n    image(\"images/mmlu.png\", width=800)\n    link(title=\"[HELM MMLU for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/mmlu/latest/\")\n\n    text(\"### MMLU-Pro\")\n    link(\"https://arxiv.org/abs/2406.01574\")\n    text(\"- Removed noisy/trivial questions from MMLU\")\n    text(\"- Expanded 4 choices to 10 choices\")\n    text(\"- Evaluated using chain of thought (gives model more of a chance)\")\n    text(\"- Accuracy of models drop by 16% to 33% (not as saturated)\")\n    image(\"images/mmlu-pro.png\", width=800)\n    link(title=\"[HELM MMLU-Pro for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/mmlu_pro\")\n\n    text(\"### Graduate-Level Google-Proof Q&A (GPQA)\")\n    link(\"https://arxiv.org/abs/2311.12022\")\n    text(\"- Questions written by 61 PhD contractors from Upwork\")\n    image(\"images/gpqa.png\", width=800)\n    text(\"- PhD experts achieve 65% accuracy\")\n    text(\"- Non-experts achieve 34% over 30 minutes with access to Google\")\n    text(\"- GPT-4 achieves 39%\")\n    link(title=\"[HELM GPQA for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/gpqa\")\n\n    text(\"### Humanity's Last Exam\")\n    link(\"https://arxiv.org/abs/2501.14249\")\n    text(\"- 2500 questions: multimodal, many subjects, multiple-choice + short-answer\")\n    image(\"images/hle-examples.png\", width=800)\n    text(\"- Awarded $500K prize pool + co-authorship to question creators\")\n    text(\"- Filtered by frontier LLMs, multiple stages of review\")\n    image(\"images/hle-pipeline.png\", width=800)\n    image(\"images/hle-results.png\", width=800)\n    link(title=\"[latest leaderboard]\", url=\"https://agi.safe.ai/\")\n\n\ndef instruction_following_benchmarks():\n    text(\"So far, we've been evaluating on fairly structured tasks.\")\n    text(\"Instruction following (as popularized by ChatGPT): just follow the instructions.\")\n    text(\"Challenge: how to evaluate an open-ended response?\")\n\n    text(\"### Chatbot Arena\")\n    link(\"https://arxiv.org/abs/2403.04132\")\n    text(\"How it works:\")\n    text(\"- Random person from the Internet types in prompt\")\n    text(\"- They get response from two random (anonymized) models\")\n    text(\"- They rate which one is better\")\n    text(\"- ELO scores are computed based on the pairwise comparisons\")\n    text(\"- Features: live (not static) inputs, can accomodate new models\")\n    image(\"images/chatbot-arena-leaderboard.png\", width=800)\n    link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")\n\n    text(\"### Instruction-Following Eval (IFEval)\")\n    link(\"https://arxiv.org/abs/2311.07911\")\n    image(\"images/ifeval-categories.png\", width=600)\n    text(\"- Add simple synthetic constraints to instructions\")\n    text(\"- Constraints can be automatically verified, but not the semantics of the response\")\n    text(\"- Fairly simple instructions, constraints are a bit artificial\")\n    link(title=\"[HELM IFEval for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/ifeval\")\n\n    text(\"### AlpacaEval\")\n    link(\"https://tatsu-lab.github.io/alpaca_eval/\")\n    text(\"- 805 instructions from various sources\")\n    text(\"- Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)\")\n    image(\"images/alpacaeval-leaderboard.png\", width=600)\n\n    text(\"### WildBench\")\n    link(\"https://arxiv.org/pdf/2406.04770\")\n    text(\"- Sourced 1024 examples from 1M human-chatbot conversations\")\n    text(\"- Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge\")\n    text(\"- Well-correlated (0.95) with Chatbot Arena (seems to be the de facto sanity check for benchmarks)\")\n    image(\"images/wildbench.png\", width=800)\n    link(title=\"[HELM WildBench for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/wildbench\")\n\n\ndef agent_benchmarks():\n    text(\"Consider tasks that require tool use (e.g., running code) and iterating over a period of time\")\n    text(\"Agent = language model + agent scaffolding (logic for deciding how to use the LM)\")\n\n    text(\"### SWEBench\")\n    link(\"https://arxiv.org/abs/2310.06770\")\n    text(\"- 2294 tasks across 12 Python repositories\")\n    text(\"- Given codebase + issue description, submit a PR\")\n    text(\"- Evaluation metric: unit tests\")\n    image(\"images/swebench.png\", width=800)\n\n    text(\"### CyBench\")\n    link(\"https://arxiv.org/abs/2408.08926\")\n    text(\"- 40 Capture the Flag (CTF) tasks\")\n    text(\"- Use first-solve time as a measure of difficulty\")\n    image(\"images/cybench.png\", width=800)\n    image(\"images/cybench-agent.png\", width=800)\n    image(\"images/cybench-results.png\", width=800)\n\n    text(\"### MLEBench\")\n    link(\"https://arxiv.org/abs/2410.07095\")\n    text(\"- 75 Kaggle competitions (require training models, processing data, etc.)\")\n    image(\"images/mlebench.png\", width=800)\n    image(\"images/mlebench-results.png\", width=800)\n\n\ndef pure_reasoning_benchmarks():\n    text(\"All of the tasks so far require linguistic and world knowledge\")\n    text(\"Can we isolate reasoning from knowledge?\")\n    text(\"Arguably, reasoning captures a more pure form of intelligence (isn't just about memorizing facts)\")\n\n    link(title=\"ARC-AGI\", url=\"https://arcprize.org/arc-agi\")\n    text(\"Introduced in 2019 by Francois Chollet\")\n\n    text(\"ARC-AGI-1\")\n    image(\"https://arcprize.org/media/images/arc-task-grids.jpg\", width=800)\n    image(\"https://arcprize.org/media/images/oseriesleaderboard.png\", width=800)\n\n    text(\"ARC-AGI-2: harder\")\n    image(\"https://arcprize.org/media/images/blog/arc-agi-2-unsolved-1.png\", width=800)\n\n\ndef safety_benchmarks():\n    image(\"https://www.team-bhp.com/forum/attachments/road-safety/2173645d1625144681-will-crash-test-rating-change-if-higher-variant-chosen-images-30.jpeg\", width=500)\n    text(\"What does safety mean for AI?\")\n\n    link(title=\"[HELM safety: curated set of benchmarks]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard\")\n\n    text(\"### HarmBench\")\n    link(\"https://arxiv.org/abs/2402.04249\")\n    text(\"- Based on 510 harmful behaviors that violate laws or norms\")\n    link(title=\"[HarmBench on HELM]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard/harm_bench\")\n    link(title=\"[Example of safety failure]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/runs/harm_bench:model=anthropic_claude-3-7-sonnet-20250219?instancesPage=4\")\n\n    text(\"### AIR-Bench\")\n    link(\"https://arxiv.org/abs/2407.17436\")\n    text(\"- Based on regulatory frameworks and company policies\")\n    text(\"- Taxonomized into 314 risk categories, 5694 prompts\")\n    image(\"https://crfm.stanford.edu/helm/assets/air-overview-d2e6c49f.png\", width=800)\n    link(title=\"[HELM AIR-Bench]\", url=\"https://crfm.stanford.edu/helm/air-bench/latest/#/leaderboard\")\n\n    text(\"### Jailbreaking\")\n    text(\"- Language models are trained to refuse harmful instructions\")\n    text(\"- Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety \"), link(\"https://arxiv.org/pdf/2307.15043\")\n    text(\"- Transfers from open-weight models (Llama) to closed models (GPT-4)\")\n    image(\"images/gcg-examples.png\", width=800)\n\n    text(\"### Pre-deployment testing\")\n    text(\"- US Safety Institute + UK AI Safety Institute working together\")\n    text(\"- Company gives safety institutes access to model before release (currently voluntary)\")\n    text(\"- Safety institutes run evaluations and produce a report to company\")\n    link(title=\"[report]\", url=\"https://www.nist.gov/system/files/documents/2024/12/18/US_UK_AI%20Safety%20Institute_%20December_Publication-OpenAIo1.pdf\")\n\n    text(\"### But what is safety?\")\n    text(\"- Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)\")\n    text(\"- Naively, one might think safety is about refusal and is at odds with capability, but there's more...\")\n    text(\"- Hallucinations in a medical setting makes systems more capable and more safe\")\n\n    text(\"Two aspects of a model that reduce safety: capabilities + propensity\")\n    text(\"- A system could be capable of doing something, but refuse to do it\")\n    text(\"- For API models, propensity matters\")\n    text(\"- For open weight models, capability matters (since can easily fine-tune safety away)\")\n\n    text(\"**Dual-use**: capable cybersecurity agents (do well on CyBench) can be used to hack into a system or to do penetration testing\")\n    text(\"CyBench is used by the safety institute as a safety evaluation, but is it really a capability evaluation?\")\n\n\ndef realism():\n    text(\"Language models are used heavily in practice:\")\n    image(\"images/openai-100b-tokens.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/sama/status/1756089361609981993\")\n    image(\"images/cursor-1b-lines.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/amanrsanger/status/1916968123535880684\")\n\n    text(\"However, most existing benchmarks (e.g., MMLU) are far away from real-world use.\")\n    text(\"Live traffic from real people contain garbage, that's not always what we want either.\")\n\n    text(\"Two types of prompts:\")\n    text(\"1. Quizzing: User knows the answer and trying to test the system (think standardized exams).\")\n    text(\"2. Asking: User doesn't know the answer is trying to use the system to get it.\")\n    text(\"Asking is more realistic and produces value for the user.\")\n\n    text(\"### Clio (Anthropic)\")\n    link(\"https://arxiv.org/abs/2412.13678\")\n    text(\"- Use language models to analyze real user data\")\n    text(\"- Share general patterns of what people are asking\")\n    image(\"images/clio-table4.png\", width=700)\n\n    text(\"### MedHELM\")\n    link(\"https://arxiv.org/abs/2412.13678\")\n    text(\"- Previous medical benchmarks were based on standardized exams\")\n    text(\"- 121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets\")\n    image(\"https://crfm.stanford.edu/helm/assets/medhelm-overview-3ddfcd65.png\", width=700)\n    link(title=\"[MedHELM]\", url=\"https://crfm.stanford.edu/helm/medhelm/latest/#/leaderboard\")\n\n    text(\"Unfortunately, realism and privacy are sometimes at odds with each other.\")\n\n\ndef validity():\n    text(\"How do we know our evaluations are valid?\")\n\n    text(\"### Train-test overlap\")\n    text(\"- Machine learning 101: don't train on your test set\")\n    text(\"- Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits\")\n    text(\"- Nowadays: train on the Internet and don't tell people about your data\")\n\n    text(\"Route 1: try to infer train-test overlap from model\")\n    text(\"- Exploit exchangeability of data points\"), link(\"https://arxiv.org/pdf/2310.17623\")\n    image(\"images/contamination-exchangeability.png\", width=600)\n\n    text(\"Route 2: encourage reporting norms (e.g., people report confidence intervals)\")\n    text(\"- Model providers should report train-test overlap \"), link(\"https://arxiv.org/abs/2410.08385\")\n\n    text(\"### Dataset quality\")\n    text(\"- Fixed up SWE-Bench to produce SWE-Bench Verified \"), blog_link(\"https://openai.com/index/introducing-swe-bench-verified/\")\n    text(\"- Create Platinum versions of benchmarks\"), link(\"https://arxiv.org/abs/2502.03461\")\n    image(\"https://pbs.twimg.com/media/GjICXQlWkAAYnDS?format=jpg&name=4096x4096\", width=700)\n    image(\"https://pbs.twimg.com/media/GjICcGQXYAAM4o1?format=jpg&name=4096x4096\", width=800)\n\n\ndef what_are_we_evaluating():\n    text(\"What are we even evaluating?\")\n    text(\"In other words, what are the rules of a game?\")\n\n    text(\"Pre-foundation models, we evaluated **methods** (standardized train-test splits).\")\n    text(\"Today, we're evaluating **models/systems** (anything goes).\")\n\n    text(\"There are some exceptions...\")\n    text(\"nanogpt speedrun: fixed data, compute time to get to a particular validation loss\")\n    image(\"images/karpathy-nanogpt-speedrun.png\", width=600), x_link(\"https://x.com/karpathy/status/1846790537262571739\")\n\n    text(\"DataComp-LM: given a raw dataset, get the best accuracy using standard training pipeline \"), link(\"https://arxiv.org/abs/2406.11794\")\n\n    text(\"Evaluating methods encourage algorithmic innovation from researchers.\")\n    text(\"Evaluating models/systems is useful for downstream users.\")\n\n    text(\"Either way, we need to define the rules of the game!\")\n\n\nif __name__ == \"__main__\":\n    main()\n"
   },
   "steps": [
     {
@@ -63,7 +63,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 24,
+          "line_number": 30,
           "function_name": "what_you_see",
           "code": "def what_you_see():"
         }
@@ -83,7 +83,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 25,
+          "line_number": 31,
           "function_name": "what_you_see",
           "code": "text(\"## Benchmark scores\")"
         }
@@ -111,7 +111,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 26,
+          "line_number": 32,
           "function_name": "what_you_see",
           "code": "image(\"images/deepseek-r1-benchmarks.png\", width=800), link(deepseek_r1)"
         }
@@ -357,7 +357,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 27,
+          "line_number": 33,
           "function_name": "what_you_see",
           "code": "image(\"images/llama4-benchmarks.png\", width=800), link(llama4)"
         }
@@ -402,7 +402,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 28,
+          "line_number": 34,
           "function_name": "what_you_see",
           "code": "image(\"https://www.datocms-assets.com/64837/1741887109-instruct-1.png\", width=800), link(olmo2_32b)"
         }
@@ -447,7 +447,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 30,
+          "line_number": 36,
           "function_name": "what_you_see",
           "code": "text(\"Recent language models are evaluated on similar, but not entirely identical, benchmarks (MMLU, MATH, etc.).\")"
         }
@@ -475,7 +475,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 31,
+          "line_number": 37,
           "function_name": "what_you_see",
           "code": "text(\"What are these benchmarks?\")"
         }
@@ -503,7 +503,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 32,
+          "line_number": 38,
           "function_name": "what_you_see",
           "code": "text(\"What do these numbers mean?\")"
         }
@@ -531,7 +531,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 34,
+          "line_number": 40,
           "function_name": "what_you_see",
           "code": "image(\"images/helm-capabilities-leaderboard.png\", width=1000)"
         }
@@ -561,7 +561,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 35,
+          "line_number": 41,
           "function_name": "what_you_see",
           "code": "link(title=\"[HELM capabilities]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard\")"
         }
@@ -597,7 +597,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 37,
+          "line_number": 43,
           "function_name": "what_you_see",
           "code": "text(\"Pay close attention to the costs!\")"
         }
@@ -625,7 +625,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 38,
+          "line_number": 44,
           "function_name": "what_you_see",
           "code": "image(\"images/artificial-analysis.png\", width=800), link(title=\"[Artificial Analysis]\", url=\"https://artificialanalysis.ai/\")"
         }
@@ -670,7 +670,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 40,
+          "line_number": 46,
           "function_name": "what_you_see",
           "code": "text(\"Maybe a model is good if people choose to use it (and pay for it)...\")"
         }
@@ -698,7 +698,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 41,
+          "line_number": 47,
           "function_name": "what_you_see",
           "code": "image(\"images/openrouter.png\", width=600), link(title=\"[OpenRouter]\", url=\"https://openrouter.ai/rankings\")"
         }
@@ -743,7 +743,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 43,
+          "line_number": 49,
           "function_name": "what_you_see",
           "code": "image(\"images/chatbot-arena-leaderboard.png\", width=800)"
         }
@@ -773,7 +773,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 44,
+          "line_number": 50,
           "function_name": "what_you_see",
           "code": "link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")"
         }
@@ -809,7 +809,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 46,
+          "line_number": 52,
           "function_name": "what_you_see",
           "code": "text(\"## Vibes\")"
         }
@@ -837,9 +837,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 47,
+          "line_number": 53,
           "function_name": "what_you_see",
-          "code": "link(\"https://x.com/demishassabis/status/1919779362980692364\")"
+          "code": "x_link(\"https://x.com/demishassabis/status/1919779362980692364\")"
         }
       ],
       "env": {},
@@ -849,7 +849,7 @@
           "data": null,
           "style": {},
           "external_link": {
-            "title": null,
+            "title": " [X]",
             "authors": null,
             "organization": null,
             "date": null,
@@ -873,7 +873,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 48,
+          "line_number": 54,
           "function_name": "what_you_see",
           "code": "image(\"images/demis-gemini-2.5.png\", width=500)"
         }
@@ -903,7 +903,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 50,
+          "line_number": 56,
           "function_name": "what_you_see",
           "code": "text(\"A crisis...\")"
         }
@@ -931,7 +931,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 51,
+          "line_number": 57,
           "function_name": "what_you_see",
           "code": "image(\"images/karpathy-crisis.png\", width=600)"
         }
@@ -989,7 +989,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 54,
+          "line_number": 60,
           "function_name": "how_to_think_about_evaluation",
           "code": "def how_to_think_about_evaluation():"
         }
@@ -1009,7 +1009,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 55,
+          "line_number": 61,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"You might think evaluation is a mechanical process (take existing model, throw prompts at it, average some numbers)...\")"
         }
@@ -1037,7 +1037,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 56,
+          "line_number": 62,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"Actually, evaluation is a profound and rich topic...\")"
         }
@@ -1065,7 +1065,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 57,
+          "line_number": 63,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"...and it determines the future of language models.\")"
         }
@@ -1093,7 +1093,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 59,
+          "line_number": 65,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"What's the point of evaluation?\")"
         }
@@ -1121,7 +1121,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 60,
+          "line_number": 66,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"There is no one true evaluation; it depends on what question you're trying to answer.\")"
         }
@@ -1149,7 +1149,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 61,
+          "line_number": 67,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"1. User or company wants to make a purchase decision (model A or model B) for their use case (e.g., customer service chatbots).\")"
         }
@@ -1177,7 +1177,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 62,
+          "line_number": 68,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. Researchers want to measure the raw capabilities of a model (e.g., intelligence).\")"
         }
@@ -1205,7 +1205,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 63,
+          "line_number": 69,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. We want to understand the benefits + harms of a model (for business and policy reasons).\")"
         }
@@ -1233,7 +1233,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 64,
+          "line_number": 70,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"4. Model developers want to get feedback to improve the model.\")"
         }
@@ -1261,7 +1261,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 65,
+          "line_number": 71,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"In each case, there is an abstract **goal** that needs to be translated into a concrete evaluation.\")"
         }
@@ -1289,7 +1289,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 67,
+          "line_number": 73,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"Framework\")"
         }
@@ -1317,7 +1317,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 68,
+          "line_number": 74,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"1. What are the **inputs**?\")"
         }
@@ -1345,7 +1345,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 69,
+          "line_number": 75,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. How do **call** the language model?\")"
         }
@@ -1373,7 +1373,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 70,
+          "line_number": 76,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. How do you evaluate the **outputs**?\")"
         }
@@ -1401,7 +1401,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 71,
+          "line_number": 77,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"4. How to **interpret** the results?\")"
         }
@@ -1429,7 +1429,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 73,
+          "line_number": 79,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"What are the inputs?\")"
         }
@@ -1457,7 +1457,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 74,
+          "line_number": 80,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"1. What use cases are **covered**?\")"
         }
@@ -1485,7 +1485,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 75,
+          "line_number": 81,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. Do we have representation of **difficult** inputs in the tail?\")"
         }
@@ -1513,7 +1513,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 76,
+          "line_number": 82,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. Are the inputs **adapted** to the model (e.g., multi-turn)?\")"
         }
@@ -1541,7 +1541,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 78,
+          "line_number": 84,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"How do you call the language model?\")"
         }
@@ -1569,7 +1569,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 79,
+          "line_number": 85,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"1. How do you prompt the language model?\")"
         }
@@ -1597,7 +1597,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 80,
+          "line_number": 86,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. Does the language model use chain-of-thought, tools, RAG, etc.?\")"
         }
@@ -1625,7 +1625,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 81,
+          "line_number": 87,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. Are we evaluating the language model or an agentic system (model developer wants former, user wants latter)?\")"
         }
@@ -1653,7 +1653,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 83,
+          "line_number": 89,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"How do you evaluate the outputs?\")"
         }
@@ -1681,7 +1681,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 84,
+          "line_number": 90,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"1. Are the reference outputs used for evaluation error-free?\")"
         }
@@ -1709,7 +1709,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 85,
+          "line_number": 91,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. What metrics do you use (e.g., pass@k)?\")"
         }
@@ -1737,7 +1737,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 86,
+          "line_number": 92,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. How do you factor in cost (e.g., inference + training)?\")"
         }
@@ -1765,7 +1765,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 87,
+          "line_number": 93,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"4. How do you factor in asymmetric errors (e.g., hallucinations in a medical setting)?\")"
         }
@@ -1793,7 +1793,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 88,
+          "line_number": 94,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"5. How do you handle open-ended generation (no ground truth)?\")"
         }
@@ -1821,7 +1821,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 90,
+          "line_number": 96,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"How do you inteprret the metrics?\")"
         }
@@ -1849,16 +1849,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 91,
+          "line_number": 97,
           "function_name": "how_to_think_about_evaluation",
-          "code": "text(\"1. How do you interpret a number (e.g., 91\\%) - is it ready for deployment?\")"
+          "code": "text(\"1. How do you interpret a number (e.g., 91%) - is it ready for deployment?\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "1. How do you interpret a number (e.g., 91\\%) - is it ready for deployment?",
+          "data": "1. How do you interpret a number (e.g., 91%) - is it ready for deployment?",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -1877,7 +1877,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 92,
+          "line_number": 98,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"2. How do we assess generalization in the face of train-test overlap?\")"
         }
@@ -1905,7 +1905,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 93,
+          "line_number": 99,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"3. Are we evaluating the final model or the method?\")"
         }
@@ -1933,7 +1933,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 95,
+          "line_number": 101,
           "function_name": "how_to_think_about_evaluation",
           "code": "text(\"Summary: lots of questions to think through when doing evaluation\")"
         }
@@ -1989,7 +1989,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 97,
+          "line_number": 103,
           "function_name": "perplexity",
           "code": "def perplexity():"
         }
@@ -2009,7 +2009,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 98,
+          "line_number": 104,
           "function_name": "perplexity",
           "code": "text(\"Recall: that a language model is a probability distribution **p(x)** over sequences of tokens.\")"
         }
@@ -2037,7 +2037,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 99,
+          "line_number": 105,
           "function_name": "perplexity",
           "code": "text(\"Perplexity (1/p(D))^(1/|D|) measures whether p assigns high probability to some dataset D.\")"
         }
@@ -2065,7 +2065,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 101,
+          "line_number": 107,
           "function_name": "perplexity",
           "code": "text(\"In pre-training, you minimize perplexity on the training set.\")"
         }
@@ -2093,7 +2093,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 102,
+          "line_number": 108,
           "function_name": "perplexity",
           "code": "text(\"The obvious thing is to measure perplexity on the test set.\")"
         }
@@ -2121,7 +2121,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 104,
+          "line_number": 110,
           "function_name": "perplexity",
           "code": "text(\"Standard datasets: Penn Treebank (WSJ), WikiText-103 (Wikipedia), One Billion Word Benchmark (from machine translation WMT11 - EuroParl, UN, news)\")"
         }
@@ -2149,7 +2149,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 105,
+          "line_number": 111,
           "function_name": "perplexity",
           "code": "text(\"Papers trained on a dataset (training split) and evaluated on the same dataset (test split)\")"
         }
@@ -2177,7 +2177,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 106,
+          "line_number": 112,
           "function_name": "perplexity",
           "code": "text(\"Pure CNNs+LSTMs on the One Billion Word Benchmark (perplexity 51.3 -> 30.0) \"), link(\"https://arxiv.org/abs/1602.02410\")"
         }
@@ -2226,7 +2226,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 108,
+          "line_number": 114,
           "function_name": "perplexity",
           "code": "text(\"GPT-2 trained on WebText (40GB text, websites linked from Reddit), zero-shot on standard datasets\")"
         }
@@ -2254,7 +2254,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 109,
+          "line_number": 115,
           "function_name": "perplexity",
           "code": "text(\"This is out-of-distribution evaluation (but idea is that training covers a lot)\")"
         }
@@ -2282,7 +2282,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 110,
+          "line_number": 116,
           "function_name": "perplexity",
           "code": "image(\"images/gpt2-perplexity.png\", width=800)"
         }
@@ -2312,7 +2312,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 111,
+          "line_number": 117,
           "function_name": "perplexity",
           "code": "text(\"Works better on small datasets (transfer is helpful), but not larger datasets (1BW)\")"
         }
@@ -2340,7 +2340,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 113,
+          "line_number": 119,
           "function_name": "perplexity",
           "code": "text(\"Since GPT-2 and GPT-3, language modeling papers have shifted more towards downstream task accuracy.\")"
         }
@@ -2368,7 +2368,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 114,
+          "line_number": 120,
           "function_name": "perplexity",
           "code": "text(\"But reasons why perplexity is still useful:\")"
         }
@@ -2396,7 +2396,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 115,
+          "line_number": 121,
           "function_name": "perplexity",
           "code": "text(\"- Smoother than downstream task accuracy (for fitting scaling laws)\")"
         }
@@ -2424,7 +2424,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 116,
+          "line_number": 122,
           "function_name": "perplexity",
           "code": "text(\"- Is universal (why we use it for training) whereas task accuracy might miss some nuances\")"
         }
@@ -2452,7 +2452,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 117,
+          "line_number": 123,
           "function_name": "perplexity",
           "code": "text(\"- Note: can measure conditional perplexity on downstream task too (used for scaling laws) \"), link(\"https://arxiv.org/abs/2412.04403\")"
         }
@@ -2508,7 +2508,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 119,
+          "line_number": 125,
           "function_name": "perplexity",
           "code": "text(\"Warning (if you're running a leaderboard): evaluator needs to trust the language model\")"
         }
@@ -2536,7 +2536,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 120,
+          "line_number": 126,
           "function_name": "perplexity",
           "code": "text(\"For task accuracy, can just take output generated from a blackbox model and compute the desired metrics\")"
         }
@@ -2564,7 +2564,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 121,
+          "line_number": 127,
           "function_name": "perplexity",
           "code": "text(\"For perplexity, need LM to generate probabilities and trust that they sum to 1 (even worse with UNKs back in the day)\")"
         }
@@ -2592,7 +2592,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 123,
+          "line_number": 129,
           "function_name": "perplexity",
           "code": "text(\"The perplexity maximalist view:\")"
         }
@@ -2620,7 +2620,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 124,
+          "line_number": 130,
           "function_name": "perplexity",
           "code": "text(\"- Your true distribution is t, model is p\")"
         }
@@ -2648,7 +2648,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 125,
+          "line_number": 131,
           "function_name": "perplexity",
           "code": "text(\"- Best possible perplexity is H(t) obtained iff p = t\")"
         }
@@ -2676,7 +2676,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 126,
+          "line_number": 132,
           "function_name": "perplexity",
           "code": "text(\"- If have t, then solve all the tasks\")"
         }
@@ -2704,7 +2704,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 127,
+          "line_number": 133,
           "function_name": "perplexity",
           "code": "text(\"- So by pushing down on perplexity, will eventually reach AGI\")"
         }
@@ -2732,7 +2732,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 128,
+          "line_number": 134,
           "function_name": "perplexity",
           "code": "text(\"- Caveat: this might not be the most efficient way to get there (pushing down on parts of the distribution that don't matter)\")"
         }
@@ -2760,7 +2760,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 130,
+          "line_number": 136,
           "function_name": "perplexity",
           "code": "text(\"Things that are spiritually perplexity:\")"
         }
@@ -2788,7 +2788,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 131,
+          "line_number": 137,
           "function_name": "perplexity",
           "code": "text(\"Similar idea: cloze tasks like LAMBADA \"), link(\"https://arxiv.org/abs/1606.06031\")"
         }
@@ -2841,7 +2841,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 132,
+          "line_number": 138,
           "function_name": "perplexity",
           "code": "image(\"images/lambada.png\", width=800)"
         }
@@ -2871,7 +2871,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 133,
+          "line_number": 139,
           "function_name": "perplexity",
           "code": "text(\"HellaSwag \"), link(\"https://arxiv.org/pdf/1905.07830\")"
         }
@@ -2920,7 +2920,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 134,
+          "line_number": 140,
           "function_name": "perplexity",
           "code": "image(\"images/hellaswag.png\", width=600)"
         }
@@ -2978,7 +2978,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 137,
+          "line_number": 143,
           "function_name": "knowledge_benchmarks",
           "code": "def knowledge_benchmarks():"
         }
@@ -2998,20 +2998,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 138,
+          "line_number": 144,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"## Massive Multitask Language Understanding (MMLU)\"), link(mmlu)"
+          "code": "text(\"### Massive Multitask Language Understanding (MMLU)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Massive Multitask Language Understanding (MMLU)",
+          "data": "### Massive Multitask Language Understanding (MMLU)",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 13,
+          "function_name": "main",
+          "code": "knowledge_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 145,
+          "function_name": "knowledge_benchmarks",
+          "code": "link(mmlu)"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -3049,16 +3070,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 139,
+          "line_number": 146,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"57 subjects (e.g., math, US history, law, morality), multiple-choice\")"
+          "code": "text(\"- 57 subjects (e.g., math, US history, law, morality), multiple-choice\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "57 subjects (e.g., math, US history, law, morality), multiple-choice",
+          "data": "- 57 subjects (e.g., math, US history, law, morality), multiple-choice",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3077,16 +3098,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 140,
+          "line_number": 147,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"\\\"collected by graduate and undergraduate students from freely available sources online\\\"\")"
+          "code": "text(\"- \\\"collected by graduate and undergraduate students from freely available sources online\\\"\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "\"collected by graduate and undergraduate students from freely available sources online\"",
+          "data": "- \"collected by graduate and undergraduate students from freely available sources online\"",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3105,16 +3126,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 141,
+          "line_number": 148,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Really about testing knowledge, not language understanding\")"
+          "code": "text(\"- Really about testing knowledge, not language understanding\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Really about testing knowledge, not language understanding",
+          "data": "- Really about testing knowledge, not language understanding",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3133,16 +3154,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 142,
+          "line_number": 149,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Evaluated on GPT-3 using few-shot prompting\")"
+          "code": "text(\"- Evaluated on GPT-3 using few-shot prompting\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Evaluated on GPT-3 using few-shot prompting",
+          "data": "- Evaluated on GPT-3 using few-shot prompting",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3161,7 +3182,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 143,
+          "line_number": 150,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/mmlu.png\", width=800)"
         }
@@ -3191,7 +3212,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 144,
+          "line_number": 151,
           "function_name": "knowledge_benchmarks",
           "code": "link(title=\"[HELM MMLU for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/mmlu/latest/\")"
         }
@@ -3227,9 +3248,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 146,
+          "line_number": 153,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"### MMLU-Pro\"), link(\"https://arxiv.org/abs/2406.01574\")"
+          "code": "text(\"### MMLU-Pro\")"
         }
       ],
       "env": {},
@@ -3240,7 +3261,28 @@
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 13,
+          "function_name": "main",
+          "code": "knowledge_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 154,
+          "function_name": "knowledge_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2406.01574\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -3288,16 +3330,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 147,
+          "line_number": 155,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Removed noisy/trivial questions from MMLU\")"
+          "code": "text(\"- Removed noisy/trivial questions from MMLU\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Removed noisy/trivial questions from MMLU",
+          "data": "- Removed noisy/trivial questions from MMLU",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3316,16 +3358,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 148,
+          "line_number": 156,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Expanded 4 choices to 10 choices\")"
+          "code": "text(\"- Expanded 4 choices to 10 choices\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Expanded 4 choices to 10 choices",
+          "data": "- Expanded 4 choices to 10 choices",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3344,16 +3386,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 149,
+          "line_number": 157,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Evaluated using chain of thought (gives model more of a chance)\")"
+          "code": "text(\"- Evaluated using chain of thought (gives model more of a chance)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Evaluated using chain of thought (gives model more of a chance)",
+          "data": "- Evaluated using chain of thought (gives model more of a chance)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3372,16 +3414,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 150,
+          "line_number": 158,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Accuracy of models drop by 16\\% to 33\\% (not as saturated)\")"
+          "code": "text(\"- Accuracy of models drop by 16% to 33% (not as saturated)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Accuracy of models drop by 16\\% to 33\\% (not as saturated)",
+          "data": "- Accuracy of models drop by 16% to 33% (not as saturated)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3400,7 +3442,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 151,
+          "line_number": 159,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/mmlu-pro.png\", width=800)"
         }
@@ -3430,7 +3472,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 152,
+          "line_number": 160,
           "function_name": "knowledge_benchmarks",
           "code": "link(title=\"[HELM MMLU-Pro for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/mmlu_pro\")"
         }
@@ -3466,9 +3508,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 154,
+          "line_number": 162,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"### Graduate-Level Google-Proof Q&A (GPQA)\"), link(\"https://arxiv.org/abs/2311.12022\")"
+          "code": "text(\"### Graduate-Level Google-Proof Q&A (GPQA)\")"
         }
       ],
       "env": {},
@@ -3479,7 +3521,28 @@
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 13,
+          "function_name": "main",
+          "code": "knowledge_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 163,
+          "function_name": "knowledge_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2311.12022\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -3518,16 +3581,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 155,
+          "line_number": 164,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Questions written by 61 PhD contractors from Upwork\")"
+          "code": "text(\"- Questions written by 61 PhD contractors from Upwork\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Questions written by 61 PhD contractors from Upwork",
+          "data": "- Questions written by 61 PhD contractors from Upwork",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3546,7 +3609,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 156,
+          "line_number": 165,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/gpqa.png\", width=800)"
         }
@@ -3576,16 +3639,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 157,
+          "line_number": 166,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"PhD experts achieve 65% accuracy\")"
+          "code": "text(\"- PhD experts achieve 65% accuracy\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "PhD experts achieve 65% accuracy",
+          "data": "- PhD experts achieve 65% accuracy",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3604,16 +3667,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 158,
+          "line_number": 167,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Non-experts achieve 34% over 30 minutes with access to Google\")"
+          "code": "text(\"- Non-experts achieve 34% over 30 minutes with access to Google\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Non-experts achieve 34% over 30 minutes with access to Google",
+          "data": "- Non-experts achieve 34% over 30 minutes with access to Google",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3632,16 +3695,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 159,
+          "line_number": 168,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"GPT-4 achieves 39%\")"
+          "code": "text(\"- GPT-4 achieves 39%\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "GPT-4 achieves 39%",
+          "data": "- GPT-4 achieves 39%",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -3660,7 +3723,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 160,
+          "line_number": 169,
           "function_name": "knowledge_benchmarks",
           "code": "link(title=\"[HELM GPQA for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/gpqa\")"
         }
@@ -3696,9 +3759,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 162,
+          "line_number": 171,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"### Humanity's Last Exam\"), link(\"https://arxiv.org/abs/2501.14249\")"
+          "code": "text(\"### Humanity's Last Exam\")"
         }
       ],
       "env": {},
@@ -3709,7 +3772,28 @@
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 13,
+          "function_name": "main",
+          "code": "knowledge_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 172,
+          "function_name": "knowledge_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2501.14249\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -4849,16 +4933,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 163,
+          "line_number": 173,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"2500 questions: multimodal, many subjects, multiple-choice + short-answer\")"
+          "code": "text(\"- 2500 questions: multimodal, many subjects, multiple-choice + short-answer\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "2500 questions: multimodal, many subjects, multiple-choice + short-answer",
+          "data": "- 2500 questions: multimodal, many subjects, multiple-choice + short-answer",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -4877,7 +4961,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 164,
+          "line_number": 174,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/hle-examples.png\", width=800)"
         }
@@ -4907,16 +4991,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 165,
+          "line_number": 175,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Awarded $500K prize pool + co-authorship to question creators\")"
+          "code": "text(\"- Awarded $500K prize pool + co-authorship to question creators\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Awarded $500K prize pool + co-authorship to question creators",
+          "data": "- Awarded $500K prize pool + co-authorship to question creators",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -4935,16 +5019,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 166,
+          "line_number": 176,
           "function_name": "knowledge_benchmarks",
-          "code": "text(\"Filtered by frontier LLMs, multiple stages of review\")"
+          "code": "text(\"- Filtered by frontier LLMs, multiple stages of review\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Filtered by frontier LLMs, multiple stages of review",
+          "data": "- Filtered by frontier LLMs, multiple stages of review",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -4963,7 +5047,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 167,
+          "line_number": 177,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/hle-pipeline.png\", width=800)"
         }
@@ -4993,7 +5077,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 168,
+          "line_number": 178,
           "function_name": "knowledge_benchmarks",
           "code": "image(\"images/hle-results.png\", width=800)"
         }
@@ -5023,7 +5107,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 169,
+          "line_number": 179,
           "function_name": "knowledge_benchmarks",
           "code": "link(title=\"[latest leaderboard]\", url=\"https://agi.safe.ai/\")"
         }
@@ -5087,7 +5171,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 172,
+          "line_number": 182,
           "function_name": "instruction_following_benchmarks",
           "code": "def instruction_following_benchmarks():"
         }
@@ -5107,7 +5191,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 173,
+          "line_number": 183,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"So far, we've been evaluating on fairly structured tasks.\")"
         }
@@ -5135,7 +5219,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 174,
+          "line_number": 184,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"Instruction following (as popularized by ChatGPT): just follow the instructions.\")"
         }
@@ -5163,7 +5247,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 175,
+          "line_number": 185,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"Challenge: how to evaluate an open-ended response?\")"
         }
@@ -5191,20 +5275,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 177,
+          "line_number": 187,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"## Chatbot Arena\"), link(\"https://arxiv.org/abs/2403.04132\")"
+          "code": "text(\"### Chatbot Arena\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Chatbot Arena",
+          "data": "### Chatbot Arena",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 14,
+          "function_name": "main",
+          "code": "instruction_following_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 188,
+          "function_name": "instruction_following_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2403.04132\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -5246,7 +5351,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 178,
+          "line_number": 189,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"How it works:\")"
         }
@@ -5274,7 +5379,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 179,
+          "line_number": 190,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"- Random person from the Internet types in prompt\")"
         }
@@ -5302,7 +5407,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 180,
+          "line_number": 191,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"- They get response from two random (anonymized) models\")"
         }
@@ -5330,7 +5435,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 181,
+          "line_number": 192,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"- They rate which one is better\")"
         }
@@ -5358,7 +5463,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 182,
+          "line_number": 193,
           "function_name": "instruction_following_benchmarks",
           "code": "text(\"- ELO scores are computed based on the pairwise comparisons\")"
         }
@@ -5386,16 +5491,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 183,
+          "line_number": 194,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Features: live (not static) inputs, can accomodate new models\")"
+          "code": "text(\"- Features: live (not static) inputs, can accomodate new models\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Features: live (not static) inputs, can accomodate new models",
+          "data": "- Features: live (not static) inputs, can accomodate new models",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5414,7 +5519,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 184,
+          "line_number": 195,
           "function_name": "instruction_following_benchmarks",
           "code": "image(\"images/chatbot-arena-leaderboard.png\", width=800)"
         }
@@ -5444,7 +5549,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 185,
+          "line_number": 196,
           "function_name": "instruction_following_benchmarks",
           "code": "link(title=\"[Chatbot Arena]\", url=\"https://huggingface.co/spaces/lmarena-ai/chatbot-arena-leaderboard\")"
         }
@@ -5480,20 +5585,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 187,
+          "line_number": 198,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"## Instruction-Following Eval (IFEval)\"), link(\"https://arxiv.org/abs/2311.07911\")"
+          "code": "text(\"### Instruction-Following Eval (IFEval)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Instruction-Following Eval (IFEval)",
+          "data": "### Instruction-Following Eval (IFEval)",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 14,
+          "function_name": "main",
+          "code": "instruction_following_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 199,
+          "function_name": "instruction_following_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2311.07911\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -5532,9 +5658,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 188,
+          "line_number": 200,
           "function_name": "instruction_following_benchmarks",
-          "code": "image(\"images/ifeval-categories.png\", width=700)"
+          "code": "image(\"images/ifeval-categories.png\", width=600)"
         }
       ],
       "env": {},
@@ -5543,7 +5669,7 @@
           "type": "image",
           "data": "images/ifeval-categories.png",
           "style": {
-            "width": 700
+            "width": 600
           },
           "external_link": null,
           "internal_link": null
@@ -5562,16 +5688,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 189,
+          "line_number": 201,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Add simple synthetic constraints to instructions\")"
+          "code": "text(\"- Add simple synthetic constraints to instructions\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Add simple synthetic constraints to instructions",
+          "data": "- Add simple synthetic constraints to instructions",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5590,16 +5716,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 190,
+          "line_number": 202,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Constraints can be automatically verified, but not the semantics of the response\")"
+          "code": "text(\"- Constraints can be automatically verified, but not the semantics of the response\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Constraints can be automatically verified, but not the semantics of the response",
+          "data": "- Constraints can be automatically verified, but not the semantics of the response",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5618,16 +5744,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 191,
+          "line_number": 203,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Fairly simple instructions, constraints are a bit artificial\")"
+          "code": "text(\"- Fairly simple instructions, constraints are a bit artificial\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Fairly simple instructions, constraints are a bit artificial",
+          "data": "- Fairly simple instructions, constraints are a bit artificial",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5646,7 +5772,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 192,
+          "line_number": 204,
           "function_name": "instruction_following_benchmarks",
           "code": "link(title=\"[HELM IFEval for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/ifeval\")"
         }
@@ -5682,20 +5808,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 194,
+          "line_number": 206,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"## AlpacaEval \"), link(\"https://tatsu-lab.github.io/alpaca_eval/\")"
+          "code": "text(\"### AlpacaEval\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## AlpacaEval ",
+          "data": "### AlpacaEval",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 14,
+          "function_name": "main",
+          "code": "instruction_following_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 207,
+          "function_name": "instruction_following_benchmarks",
+          "code": "link(\"https://tatsu-lab.github.io/alpaca_eval/\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -5725,16 +5872,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 195,
+          "line_number": 208,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"805 instructions from various sources\")"
+          "code": "text(\"- 805 instructions from various sources\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "805 instructions from various sources",
+          "data": "- 805 instructions from various sources",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5753,16 +5900,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 196,
+          "line_number": 209,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)\")"
+          "code": "text(\"- Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)",
+          "data": "- Metric: win rate against GPT-4 preview as judged by GPT-4 preview (potential bias)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5781,7 +5928,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 197,
+          "line_number": 210,
           "function_name": "instruction_following_benchmarks",
           "code": "image(\"images/alpacaeval-leaderboard.png\", width=600)"
         }
@@ -5811,20 +5958,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 199,
+          "line_number": 212,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"## WildBench\"), link(\"https://arxiv.org/pdf/2406.04770\")"
+          "code": "text(\"### WildBench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## WildBench",
+          "data": "### WildBench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 14,
+          "function_name": "main",
+          "code": "instruction_following_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 213,
+          "function_name": "instruction_following_benchmarks",
+          "code": "link(\"https://arxiv.org/pdf/2406.04770\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -5864,16 +6032,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 200,
+          "line_number": 214,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Sourced 1024 examples from 1M human-chatbot conversations\")"
+          "code": "text(\"- Sourced 1024 examples from 1M human-chatbot conversations\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Sourced 1024 examples from 1M human-chatbot conversations",
+          "data": "- Sourced 1024 examples from 1M human-chatbot conversations",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5892,16 +6060,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 201,
+          "line_number": 215,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge\")"
+          "code": "text(\"- Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge",
+          "data": "- Uses GPT-4 turbo as a judge with a checklist (like CoT for judging) + GPT-4 as a judge",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5920,16 +6088,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 202,
+          "line_number": 216,
           "function_name": "instruction_following_benchmarks",
-          "code": "text(\"Well-correlated (0.95) with Chatbot Arena\")"
+          "code": "text(\"- Well-correlated (0.95) with Chatbot Arena (seems to be the de facto sanity check for benchmarks)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Well-correlated (0.95) with Chatbot Arena",
+          "data": "- Well-correlated (0.95) with Chatbot Arena (seems to be the de facto sanity check for benchmarks)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -5948,7 +6116,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 203,
+          "line_number": 217,
           "function_name": "instruction_following_benchmarks",
           "code": "image(\"images/wildbench.png\", width=800)"
         }
@@ -5978,7 +6146,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 204,
+          "line_number": 218,
           "function_name": "instruction_following_benchmarks",
           "code": "link(title=\"[HELM WildBench for visualizing predictions]\", url=\"https://crfm.stanford.edu/helm/capabilities/latest/#/leaderboard/wildbench\")"
         }
@@ -6042,7 +6210,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 207,
+          "line_number": 221,
           "function_name": "agent_benchmarks",
           "code": "def agent_benchmarks():"
         }
@@ -6062,7 +6230,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 208,
+          "line_number": 222,
           "function_name": "agent_benchmarks",
           "code": "text(\"Consider tasks that require tool use (e.g., running code) and iterating over a period of time\")"
         }
@@ -6090,7 +6258,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 209,
+          "line_number": 223,
           "function_name": "agent_benchmarks",
           "code": "text(\"Agent = language model + agent scaffolding (logic for deciding how to use the LM)\")"
         }
@@ -6118,20 +6286,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 211,
+          "line_number": 225,
           "function_name": "agent_benchmarks",
-          "code": "text(\"## SWEBench\"), link(\"https://arxiv.org/abs/2310.06770\")"
+          "code": "text(\"### SWEBench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## SWEBench",
+          "data": "### SWEBench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 15,
+          "function_name": "main",
+          "code": "agent_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 226,
+          "function_name": "agent_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2310.06770\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -6169,16 +6358,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 212,
+          "line_number": 227,
           "function_name": "agent_benchmarks",
-          "code": "text(\"2294 tasks across 12 Python repositories\")"
+          "code": "text(\"- 2294 tasks across 12 Python repositories\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "2294 tasks across 12 Python repositories",
+          "data": "- 2294 tasks across 12 Python repositories",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -6197,16 +6386,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 213,
+          "line_number": 228,
           "function_name": "agent_benchmarks",
-          "code": "text(\"Given codebase + issue description, submit a PR\")"
+          "code": "text(\"- Given codebase + issue description, submit a PR\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Given codebase + issue description, submit a PR",
+          "data": "- Given codebase + issue description, submit a PR",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -6225,16 +6414,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 214,
+          "line_number": 229,
           "function_name": "agent_benchmarks",
-          "code": "text(\"Evaluation metric: unit tests\")"
+          "code": "text(\"- Evaluation metric: unit tests\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Evaluation metric: unit tests",
+          "data": "- Evaluation metric: unit tests",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -6253,7 +6442,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 215,
+          "line_number": 230,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/swebench.png\", width=800)"
         }
@@ -6283,20 +6472,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 217,
+          "line_number": 232,
           "function_name": "agent_benchmarks",
-          "code": "text(\"## CyBench\"), link(\"https://arxiv.org/abs/2408.08926\")"
+          "code": "text(\"### CyBench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## CyBench",
+          "data": "### CyBench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 15,
+          "function_name": "main",
+          "code": "agent_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 233,
+          "function_name": "agent_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2408.08926\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -6354,7 +6564,63 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 218,
+          "line_number": 234,
+          "function_name": "agent_benchmarks",
+          "code": "text(\"- 40 Capture the Flag (CTF) tasks\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- 40 Capture the Flag (CTF) tasks",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 15,
+          "function_name": "main",
+          "code": "agent_benchmarks()"
+        },
+        {
+          "path": "lecture_12.py",
+          "line_number": 235,
+          "function_name": "agent_benchmarks",
+          "code": "text(\"- Use first-solve time as a measure of difficulty\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- Use first-solve time as a measure of difficulty",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 15,
+          "function_name": "main",
+          "code": "agent_benchmarks()"
+        },
+        {
+          "path": "lecture_12.py",
+          "line_number": 236,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/cybench.png\", width=800)"
         }
@@ -6384,7 +6650,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 219,
+          "line_number": 237,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/cybench-agent.png\", width=800)"
         }
@@ -6414,7 +6680,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 220,
+          "line_number": 238,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/cybench-results.png\", width=800)"
         }
@@ -6444,20 +6710,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 222,
+          "line_number": 240,
           "function_name": "agent_benchmarks",
-          "code": "text(\"## MLEBench\"), link(\"https://arxiv.org/abs/2410.07095\")"
+          "code": "text(\"### MLEBench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## MLEBench",
+          "data": "### MLEBench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 15,
+          "function_name": "main",
+          "code": "agent_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 241,
+          "function_name": "agent_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2410.07095\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -6500,16 +6787,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 223,
+          "line_number": 242,
           "function_name": "agent_benchmarks",
-          "code": "text(\"75 Kaggle competitions (require training models, processing data, etc.)\")"
+          "code": "text(\"- 75 Kaggle competitions (require training models, processing data, etc.)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "75 Kaggle competitions (require training models, processing data, etc.)",
+          "data": "- 75 Kaggle competitions (require training models, processing data, etc.)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -6528,7 +6815,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 224,
+          "line_number": 243,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/mlebench.png\", width=800)"
         }
@@ -6558,7 +6845,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 225,
+          "line_number": 244,
           "function_name": "agent_benchmarks",
           "code": "image(\"images/mlebench-results.png\", width=800)"
         }
@@ -6616,7 +6903,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 228,
+          "line_number": 247,
           "function_name": "pure_reasoning_benchmarks",
           "code": "def pure_reasoning_benchmarks():"
         }
@@ -6636,7 +6923,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 229,
+          "line_number": 248,
           "function_name": "pure_reasoning_benchmarks",
           "code": "text(\"All of the tasks so far require linguistic and world knowledge\")"
         }
@@ -6664,7 +6951,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 230,
+          "line_number": 249,
           "function_name": "pure_reasoning_benchmarks",
           "code": "text(\"Can we isolate reasoning from knowledge?\")"
         }
@@ -6692,7 +6979,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 231,
+          "line_number": 250,
           "function_name": "pure_reasoning_benchmarks",
           "code": "text(\"Arguably, reasoning captures a more pure form of intelligence (isn't just about memorizing facts)\")"
         }
@@ -6720,26 +7007,19 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 233,
+          "line_number": 252,
           "function_name": "pure_reasoning_benchmarks",
-          "code": "text(\"ARC-AGI\"), link(\"https://arcprize.org/arc-agi\")"
+          "code": "link(title=\"ARC-AGI\", url=\"https://arcprize.org/arc-agi\")"
         }
       ],
       "env": {},
       "renderings": [
         {
-          "type": "markdown",
-          "data": "ARC-AGI",
-          "style": {},
-          "external_link": null,
-          "internal_link": null
-        },
-        {
           "type": "link",
           "data": null,
           "style": {},
           "external_link": {
-            "title": null,
+            "title": "ARC-AGI",
             "authors": null,
             "organization": null,
             "date": null,
@@ -6763,7 +7043,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 234,
+          "line_number": 253,
           "function_name": "pure_reasoning_benchmarks",
           "code": "text(\"Introduced in 2019 by Francois Chollet\")"
         }
@@ -6791,7 +7071,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 236,
+          "line_number": 255,
           "function_name": "pure_reasoning_benchmarks",
           "code": "text(\"ARC-AGI-1\")"
         }
@@ -6819,7 +7099,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 237,
+          "line_number": 256,
           "function_name": "pure_reasoning_benchmarks",
           "code": "image(\"https://arcprize.org/media/images/arc-task-grids.jpg\", width=800)"
         }
@@ -6849,7 +7129,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 238,
+          "line_number": 257,
           "function_name": "pure_reasoning_benchmarks",
           "code": "image(\"https://arcprize.org/media/images/oseriesleaderboard.png\", width=800)"
         }
@@ -6879,16 +7159,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 240,
+          "line_number": 259,
           "function_name": "pure_reasoning_benchmarks",
-          "code": "text(\"ARC-AGI-2\")"
+          "code": "text(\"ARC-AGI-2: harder\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "ARC-AGI-2",
+          "data": "ARC-AGI-2: harder",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -6907,7 +7187,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 241,
+          "line_number": 260,
           "function_name": "pure_reasoning_benchmarks",
           "code": "image(\"https://arcprize.org/media/images/blog/arc-agi-2-unsolved-1.png\", width=800)"
         }
@@ -6965,7 +7245,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 244,
+          "line_number": 263,
           "function_name": "safety_benchmarks",
           "code": "def safety_benchmarks():"
         }
@@ -6985,9 +7265,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 245,
+          "line_number": 264,
           "function_name": "safety_benchmarks",
-          "code": "image(\"https://www.team-bhp.com/forum/attachments/road-safety/2173645d1625144681-will-crash-test-rating-change-if-higher-variant-chosen-images-30.jpeg\", width=800)"
+          "code": "image(\"https://www.team-bhp.com/forum/attachments/road-safety/2173645d1625144681-will-crash-test-rating-change-if-higher-variant-chosen-images-30.jpeg\", width=500)"
         }
       ],
       "env": {},
@@ -6996,7 +7276,7 @@
           "type": "image",
           "data": "var/files/image-a375cd28c372458baf4135c081a1ce8b-https_www_team-bhp_com_forum_attachments_road-safety_2173645d1625144681-will-crash-test-rating-change-if-higher-variant-chosen-images-30_jpeg",
           "style": {
-            "width": 800
+            "width": 500
           },
           "external_link": null,
           "internal_link": null
@@ -7015,7 +7295,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 246,
+          "line_number": 265,
           "function_name": "safety_benchmarks",
           "code": "text(\"What does safety mean for AI?\")"
         }
@@ -7043,7 +7323,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 248,
+          "line_number": 267,
           "function_name": "safety_benchmarks",
           "code": "link(title=\"[HELM safety: curated set of benchmarks]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard\")"
         }
@@ -7079,20 +7359,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 250,
+          "line_number": 269,
           "function_name": "safety_benchmarks",
-          "code": "text(\"## HarmBench\"), link(\"https://arxiv.org/abs/2402.04249\")"
+          "code": "text(\"### HarmBench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## HarmBench",
+          "data": "### HarmBench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 17,
+          "function_name": "main",
+          "code": "safety_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 270,
+          "function_name": "safety_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2402.04249\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -7135,16 +7436,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 251,
+          "line_number": 271,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Given 510 harmful behaviors that violate laws or norms\")"
+          "code": "text(\"- Based on 510 harmful behaviors that violate laws or norms\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Given 510 harmful behaviors that violate laws or norms",
+          "data": "- Based on 510 harmful behaviors that violate laws or norms",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7163,7 +7464,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 252,
+          "line_number": 272,
           "function_name": "safety_benchmarks",
           "code": "link(title=\"[HarmBench on HELM]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/leaderboard/harm_bench\")"
         }
@@ -7199,7 +7500,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 253,
+          "line_number": 273,
           "function_name": "safety_benchmarks",
           "code": "link(title=\"[Example of safety failure]\", url=\"https://crfm.stanford.edu/helm/safety/latest/#/runs/harm_bench:model=anthropic_claude-3-7-sonnet-20250219?instancesPage=4\")"
         }
@@ -7235,20 +7536,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 255,
+          "line_number": 275,
           "function_name": "safety_benchmarks",
-          "code": "text(\"## AIR-Bench\"), link(\"https://arxiv.org/abs/2407.17436\")"
+          "code": "text(\"### AIR-Bench\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## AIR-Bench",
+          "data": "### AIR-Bench",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 17,
+          "function_name": "main",
+          "code": "safety_benchmarks()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 276,
+          "function_name": "safety_benchmarks",
+          "code": "link(\"https://arxiv.org/abs/2407.17436\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -7291,16 +7613,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 256,
+          "line_number": 277,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Based on regulatory frameworks and company policies\")"
+          "code": "text(\"- Based on regulatory frameworks and company policies\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Based on regulatory frameworks and company policies",
+          "data": "- Based on regulatory frameworks and company policies",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7319,16 +7641,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 257,
+          "line_number": 278,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Taxonomized into 314 risk categories, 5694 prompts\")"
+          "code": "text(\"- Taxonomized into 314 risk categories, 5694 prompts\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Taxonomized into 314 risk categories, 5694 prompts",
+          "data": "- Taxonomized into 314 risk categories, 5694 prompts",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7347,7 +7669,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 258,
+          "line_number": 279,
           "function_name": "safety_benchmarks",
           "code": "image(\"https://crfm.stanford.edu/helm/assets/air-overview-d2e6c49f.png\", width=800)"
         }
@@ -7377,7 +7699,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 259,
+          "line_number": 280,
           "function_name": "safety_benchmarks",
           "code": "link(title=\"[HELM AIR-Bench]\", url=\"https://crfm.stanford.edu/helm/air-bench/latest/#/leaderboard\")"
         }
@@ -7413,16 +7735,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 261,
+          "line_number": 282,
           "function_name": "safety_benchmarks",
-          "code": "text(\"## Jailbreaking\")"
+          "code": "text(\"### Jailbreaking\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Jailbreaking",
+          "data": "### Jailbreaking",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7441,16 +7763,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 262,
+          "line_number": 283,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Language models are trained to refuse harmful instructions\")"
+          "code": "text(\"- Language models are trained to refuse harmful instructions\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Language models are trained to refuse harmful instructions",
+          "data": "- Language models are trained to refuse harmful instructions",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7469,16 +7791,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 263,
+          "line_number": 284,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety \"), link(\"https://arxiv.org/pdf/2307.15043\")"
+          "code": "text(\"- Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety \"), link(\"https://arxiv.org/pdf/2307.15043\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety ",
+          "data": "- Greedy Coordinate Gradient (GCG) automatically optimizes prompts to bypass safety ",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7519,16 +7841,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 264,
+          "line_number": 285,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Transfers from open-weight models (Llama) to closed models (GPT-4)\")"
+          "code": "text(\"- Transfers from open-weight models (Llama) to closed models (GPT-4)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Transfers from open-weight models (Llama) to closed models (GPT-4)",
+          "data": "- Transfers from open-weight models (Llama) to closed models (GPT-4)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7547,7 +7869,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 265,
+          "line_number": 286,
           "function_name": "safety_benchmarks",
           "code": "image(\"images/gcg-examples.png\", width=800)"
         }
@@ -7577,16 +7899,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 267,
+          "line_number": 288,
           "function_name": "safety_benchmarks",
-          "code": "text(\"## Pre-deployment testing\")"
+          "code": "text(\"### Pre-deployment testing\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Pre-deployment testing",
+          "data": "### Pre-deployment testing",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7605,16 +7927,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 268,
+          "line_number": 289,
           "function_name": "safety_benchmarks",
-          "code": "text(\"US Safety Institute + UK AI Safety Institute working together\")"
+          "code": "text(\"- US Safety Institute + UK AI Safety Institute working together\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "US Safety Institute + UK AI Safety Institute working together",
+          "data": "- US Safety Institute + UK AI Safety Institute working together",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7633,16 +7955,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 269,
+          "line_number": 290,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Company gives safety institutes access to model before release (currently voluntary)\")"
+          "code": "text(\"- Company gives safety institutes access to model before release (currently voluntary)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Company gives safety institutes access to model before release (currently voluntary)",
+          "data": "- Company gives safety institutes access to model before release (currently voluntary)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7661,16 +7983,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 270,
+          "line_number": 291,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Safety institutes run evaluations and produce a report to company\")"
+          "code": "text(\"- Safety institutes run evaluations and produce a report to company\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Safety institutes run evaluations and produce a report to company",
+          "data": "- Safety institutes run evaluations and produce a report to company",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7689,20 +8011,26 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 271,
+          "line_number": 292,
           "function_name": "safety_benchmarks",
-          "code": "image(\"https://www.nist.gov/system/files/documents/2024/12/18/US_UK_AI%20Safety%20Institute_%20December_Publication-OpenAIo1.pdf\", width=800)"
+          "code": "link(title=\"[report]\", url=\"https://www.nist.gov/system/files/documents/2024/12/18/US_UK_AI%20Safety%20Institute_%20December_Publication-OpenAIo1.pdf\")"
         }
       ],
       "env": {},
       "renderings": [
         {
-          "type": "image",
-          "data": "var/files/image-e0e783aae4c6769c51465094bc539f1b-https_www_nist_gov_system_files_documents_2024_12_18_US_UK_AI_20Safety_20Institute__20December_Publication-OpenAIo1_pdf",
-          "style": {
-            "width": 800
+          "type": "link",
+          "data": null,
+          "style": {},
+          "external_link": {
+            "title": "[report]",
+            "authors": null,
+            "organization": null,
+            "date": null,
+            "url": "https://www.nist.gov/system/files/documents/2024/12/18/US_UK_AI%20Safety%20Institute_%20December_Publication-OpenAIo1.pdf",
+            "description": null,
+            "notes": null
           },
-          "external_link": null,
           "internal_link": null
         }
       ],
@@ -7719,16 +8047,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 273,
+          "line_number": 294,
           "function_name": "safety_benchmarks",
-          "code": "text(\"## What is safety?\")"
+          "code": "text(\"### But what is safety?\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## What is safety?",
+          "data": "### But what is safety?",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7747,16 +8075,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 274,
+          "line_number": 295,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)\")"
+          "code": "text(\"- Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)",
+          "data": "- Many aspects of safety are strongly contextual (politics, law, social norms - which vary across countries)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7775,16 +8103,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 275,
+          "line_number": 296,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Naively, one might think safety is about refusal and is at odds with capability, but there's more...\")"
+          "code": "text(\"- Naively, one might think safety is about refusal and is at odds with capability, but there's more...\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Naively, one might think safety is about refusal and is at odds with capability, but there's more...",
+          "data": "- Naively, one might think safety is about refusal and is at odds with capability, but there's more...",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7803,16 +8131,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 276,
+          "line_number": 297,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Hallucinations in a medical setting makes systems more capable and more safe\")"
+          "code": "text(\"- Hallucinations in a medical setting makes systems more capable and more safe\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Hallucinations in a medical setting makes systems more capable and more safe",
+          "data": "- Hallucinations in a medical setting makes systems more capable and more safe",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7831,16 +8159,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 278,
+          "line_number": 299,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Two things: capabilities + propensity\")"
+          "code": "text(\"Two aspects of a model that reduce safety: capabilities + propensity\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Two things: capabilities + propensity",
+          "data": "Two aspects of a model that reduce safety: capabilities + propensity",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7859,16 +8187,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 279,
+          "line_number": 300,
           "function_name": "safety_benchmarks",
-          "code": "text(\"A system could be capable of doing something, but refuse to do it\")"
+          "code": "text(\"- A system could be capable of doing something, but refuse to do it\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "A system could be capable of doing something, but refuse to do it",
+          "data": "- A system could be capable of doing something, but refuse to do it",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7887,16 +8215,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 280,
+          "line_number": 301,
           "function_name": "safety_benchmarks",
-          "code": "text(\"For API model, propensity matters\")"
+          "code": "text(\"- For API models, propensity matters\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "For API model, propensity matters",
+          "data": "- For API models, propensity matters",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7915,16 +8243,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 281,
+          "line_number": 302,
           "function_name": "safety_benchmarks",
-          "code": "text(\"For open weight models, capability matters (since can easily fine-tune safety away)\")"
+          "code": "text(\"- For open weight models, capability matters (since can easily fine-tune safety away)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "For open weight models, capability matters (since can easily fine-tune safety away)",
+          "data": "- For open weight models, capability matters (since can easily fine-tune safety away)",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7943,16 +8271,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 283,
+          "line_number": 304,
           "function_name": "safety_benchmarks",
-          "code": "text(\"Dual-use: capable cybersecurity agents (do well on Cybench) can be used to hack into a system or to do penetration testing\")"
+          "code": "text(\"**Dual-use**: capable cybersecurity agents (do well on CyBench) can be used to hack into a system or to do penetration testing\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Dual-use: capable cybersecurity agents (do well on Cybench) can be used to hack into a system or to do penetration testing",
+          "data": "**Dual-use**: capable cybersecurity agents (do well on CyBench) can be used to hack into a system or to do penetration testing",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -7971,7 +8299,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 284,
+          "line_number": 305,
           "function_name": "safety_benchmarks",
           "code": "text(\"CyBench is used by the safety institute as a safety evaluation, but is it really a capability evaluation?\")"
         }
@@ -8027,7 +8355,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 287,
+          "line_number": 308,
           "function_name": "realism",
           "code": "def realism():"
         }
@@ -8047,7 +8375,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 288,
+          "line_number": 309,
           "function_name": "realism",
           "code": "text(\"Language models are used heavily in practice:\")"
         }
@@ -8075,7 +8403,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 289,
+          "line_number": 310,
           "function_name": "realism",
           "code": "image(\"images/openai-100b-tokens.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/sama/status/1756089361609981993\")"
         }
@@ -8120,7 +8448,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 290,
+          "line_number": 311,
           "function_name": "realism",
           "code": "image(\"images/cursor-1b-lines.png\", width=600); link(title=\" [tweet]\", url=\"https://x.com/amanrsanger/status/1916968123535880684\")"
         }
@@ -8165,16 +8493,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 292,
+          "line_number": 313,
           "function_name": "realism",
-          "code": "text(\"However, most existing benchmarks (e.g., MMLU) are far away from real-world use\")"
+          "code": "text(\"However, most existing benchmarks (e.g., MMLU) are far away from real-world use.\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "However, most existing benchmarks (e.g., MMLU) are far away from real-world use",
+          "data": "However, most existing benchmarks (e.g., MMLU) are far away from real-world use.",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8193,16 +8521,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 293,
+          "line_number": 314,
           "function_name": "realism",
-          "code": "text(\"Live traffic from real people contain garbage, that's not exactly what we want either\")"
+          "code": "text(\"Live traffic from real people contain garbage, that's not always what we want either.\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Live traffic from real people contain garbage, that's not exactly what we want either",
+          "data": "Live traffic from real people contain garbage, that's not always what we want either.",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8221,7 +8549,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 295,
+          "line_number": 316,
           "function_name": "realism",
           "code": "text(\"Two types of prompts:\")"
         }
@@ -8249,7 +8577,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 296,
+          "line_number": 317,
           "function_name": "realism",
           "code": "text(\"1. Quizzing: User knows the answer and trying to test the system (think standardized exams).\")"
         }
@@ -8277,7 +8605,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 297,
+          "line_number": 318,
           "function_name": "realism",
           "code": "text(\"2. Asking: User doesn't know the answer is trying to use the system to get it.\")"
         }
@@ -8305,7 +8633,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 298,
+          "line_number": 319,
           "function_name": "realism",
           "code": "text(\"Asking is more realistic and produces value for the user.\")"
         }
@@ -8333,20 +8661,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 300,
+          "line_number": 321,
           "function_name": "realism",
-          "code": "text(\"## Clio from Anthropic\"), link(\"https://arxiv.org/abs/2412.13678\")"
+          "code": "text(\"### Clio (Anthropic)\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Clio from Anthropic",
+          "data": "### Clio (Anthropic)",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 19,
+          "function_name": "main",
+          "code": "realism()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 322,
+          "function_name": "realism",
+          "code": "link(\"https://arxiv.org/abs/2412.13678\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -8398,16 +8747,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 301,
+          "line_number": 323,
           "function_name": "realism",
-          "code": "text(\"Use language models to analyze real user data\")"
+          "code": "text(\"- Use language models to analyze real user data\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Use language models to analyze real user data",
+          "data": "- Use language models to analyze real user data",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8426,16 +8775,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 302,
+          "line_number": 324,
           "function_name": "realism",
-          "code": "text(\"Share general patterns of what people are asking\")"
+          "code": "text(\"- Share general patterns of what people are asking\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Share general patterns of what people are asking",
+          "data": "- Share general patterns of what people are asking",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8454,18 +8803,18 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 303,
+          "line_number": 325,
           "function_name": "realism",
-          "code": "image(\"https://www.anthropic.com/_next/image?url=https%3A%2F%2Fwww-cdn.anthropic.com%2Fimages%2F4zrzovbb%2Fwebsite%2F7d27ae68696871a7fc0e49d219ae3b7bc0fe98d0-2401x1520.png\", width=800)"
+          "code": "image(\"images/clio-table4.png\", width=700)"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "image",
-          "data": "var/files/image-54ea2cfe79e81559795cdb056570f1b8-https_www_anthropic_com__next_image_url_https_3A_2F_2Fwww-cdn_anthropic_com_2Fimages_2F4zrzovbb_2Fwebsite_2F7d27ae68696871a7fc0e49d219ae3b7bc0fe98d0-2401x1520_png",
+          "data": "images/clio-table4.png",
           "style": {
-            "width": 800
+            "width": 700
           },
           "external_link": null,
           "internal_link": null
@@ -8484,20 +8833,41 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 305,
+          "line_number": 327,
           "function_name": "realism",
-          "code": "text(\"## MedHELM\"), link(\"https://arxiv.org/abs/2412.13678\")"
+          "code": "text(\"### MedHELM\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## MedHELM",
+          "data": "### MedHELM",
           "style": {},
           "external_link": null,
           "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 19,
+          "function_name": "main",
+          "code": "realism()"
         },
+        {
+          "path": "lecture_12.py",
+          "line_number": 328,
+          "function_name": "realism",
+          "code": "link(\"https://arxiv.org/abs/2412.13678\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
         {
           "type": "link",
           "data": null,
@@ -8549,16 +8919,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 306,
+          "line_number": 329,
           "function_name": "realism",
-          "code": "text(\"Previous medical benchmarks were based on standardized exams\")"
+          "code": "text(\"- Previous medical benchmarks were based on standardized exams\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Previous medical benchmarks were based on standardized exams",
+          "data": "- Previous medical benchmarks were based on standardized exams",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8577,16 +8947,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 307,
+          "line_number": 330,
           "function_name": "realism",
-          "code": "text(\"121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets\")"
+          "code": "text(\"- 121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets",
+          "data": "- 121 clinical tasks sourced from 29 clinicians, mixture of private and public datasets",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8605,9 +8975,9 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 308,
+          "line_number": 331,
           "function_name": "realism",
-          "code": "image(\"https://crfm.stanford.edu/helm/assets/medhelm-overview-3ddfcd65.png\", width=800)"
+          "code": "image(\"https://crfm.stanford.edu/helm/assets/medhelm-overview-3ddfcd65.png\", width=700)"
         }
       ],
       "env": {},
@@ -8616,7 +8986,7 @@
           "type": "image",
           "data": "var/files/image-dd0716ead405df19ab6676c1baa73632-https_crfm_stanford_edu_helm_assets_medhelm-overview-3ddfcd65_png",
           "style": {
-            "width": 800
+            "width": 700
           },
           "external_link": null,
           "internal_link": null
@@ -8635,7 +9005,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 309,
+          "line_number": 332,
           "function_name": "realism",
           "code": "link(title=\"[MedHELM]\", url=\"https://crfm.stanford.edu/helm/medhelm/latest/#/leaderboard\")"
         }
@@ -8671,16 +9041,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 311,
+          "line_number": 334,
           "function_name": "realism",
-          "code": "text(\"Unfortunately, realism and privacy are at odds.\")"
+          "code": "text(\"Unfortunately, realism and privacy are sometimes at odds with each other.\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Unfortunately, realism and privacy are at odds.",
+          "data": "Unfortunately, realism and privacy are sometimes at odds with each other.",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8727,7 +9097,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 314,
+          "line_number": 337,
           "function_name": "validity",
           "code": "def validity():"
         }
@@ -8747,7 +9117,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 315,
+          "line_number": 338,
           "function_name": "validity",
           "code": "text(\"How do we know our evaluations are valid?\")"
         }
@@ -8775,16 +9145,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 317,
+          "line_number": 340,
           "function_name": "validity",
-          "code": "text(\"## Train-test overlap\")"
+          "code": "text(\"### Train-test overlap\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Train-test overlap",
+          "data": "### Train-test overlap",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8803,16 +9173,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 318,
+          "line_number": 341,
           "function_name": "validity",
-          "code": "text(\"Machine learning 101: don't train on your test set\")"
+          "code": "text(\"- Machine learning 101: don't train on your test set\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Machine learning 101: don't train on your test set",
+          "data": "- Machine learning 101: don't train on your test set",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8831,16 +9201,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 319,
+          "line_number": 342,
           "function_name": "validity",
-          "code": "text(\"Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits\")"
+          "code": "text(\"- Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits",
+          "data": "- Pre-foundation models (ImageNet, SQuAD): well-defined train-test splits",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8859,16 +9229,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 320,
+          "line_number": 343,
           "function_name": "validity",
-          "code": "text(\"Nowadays: train on the Internet and don't tell people about your data\")"
+          "code": "text(\"- Nowadays: train on the Internet and don't tell people about your data\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Nowadays: train on the Internet and don't tell people about your data",
+          "data": "- Nowadays: train on the Internet and don't tell people about your data",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8887,7 +9257,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 322,
+          "line_number": 345,
           "function_name": "validity",
           "code": "text(\"Route 1: try to infer train-test overlap from model\")"
         }
@@ -8915,16 +9285,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 323,
+          "line_number": 346,
           "function_name": "validity",
-          "code": "text(\"Exploiting exchangeability in the benchmark\"), link(\"https://arxiv.org/pdf/2310.17623\")"
+          "code": "text(\"- Exploit exchangeability of data points\"), link(\"https://arxiv.org/pdf/2310.17623\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Exploiting exchangeability in the benchmark",
+          "data": "- Exploit exchangeability of data points",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -8964,7 +9334,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 324,
+          "line_number": 347,
           "function_name": "validity",
           "code": "image(\"images/contamination-exchangeability.png\", width=600)"
         }
@@ -8994,7 +9364,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 326,
+          "line_number": 349,
           "function_name": "validity",
           "code": "text(\"Route 2: encourage reporting norms (e.g., people report confidence intervals)\")"
         }
@@ -9022,16 +9392,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 327,
+          "line_number": 350,
           "function_name": "validity",
-          "code": "text(\"Model providers should report train-test overlap \"), link(\"https://arxiv.org/abs/2410.08385\")"
+          "code": "text(\"- Model providers should report train-test overlap \"), link(\"https://arxiv.org/abs/2410.08385\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Model providers should report train-test overlap ",
+          "data": "- Model providers should report train-test overlap ",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9073,46 +9443,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 328,
+          "line_number": 352,
           "function_name": "validity",
-          "code": "image(\"images/train-test-overlap-companies.png\", width=600)"
-        }
-      ],
-      "env": {},
-      "renderings": [
-        {
-          "type": "image",
-          "data": "images/train-test-overlap-companies.png",
-          "style": {
-            "width": 600
-          },
-          "external_link": null,
-          "internal_link": null
-        }
-      ],
-      "stdout": "",
-      "stderr": ""
-    },
-    {
-      "stack": [
-        {
-          "path": "lecture_12.py",
-          "line_number": 20,
-          "function_name": "main",
-          "code": "validity()"
-        },
-        {
-          "path": "lecture_12.py",
-          "line_number": 330,
-          "function_name": "validity",
-          "code": "text(\"## Dataset quality\")"
+          "code": "text(\"### Dataset quality\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "## Dataset quality",
+          "data": "### Dataset quality",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9131,16 +9471,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 331,
+          "line_number": 353,
           "function_name": "validity",
-          "code": "text(\"Fixed up SWE-Bench to produce SWE-Bench Verified \"), blog_link(\"https://openai.com/index/introducing-swe-bench-verified/\")"
+          "code": "text(\"- Fixed up SWE-Bench to produce SWE-Bench Verified \"), blog_link(\"https://openai.com/index/introducing-swe-bench-verified/\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Fixed up SWE-Bench to produce SWE-Bench Verified ",
+          "data": "- Fixed up SWE-Bench to produce SWE-Bench Verified ",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9174,16 +9514,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 332,
+          "line_number": 354,
           "function_name": "validity",
-          "code": "text(\"Create Platinum versions of benchmarks\"), link(\"https://arxiv.org/abs/2502.03461\")"
+          "code": "text(\"- Create Platinum versions of benchmarks\"), link(\"https://arxiv.org/abs/2502.03461\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Create Platinum versions of benchmarks",
+          "data": "- Create Platinum versions of benchmarks",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9222,7 +9562,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 333,
+          "line_number": 355,
           "function_name": "validity",
           "code": "image(\"https://pbs.twimg.com/media/GjICXQlWkAAYnDS?format=jpg&name=4096x4096\", width=700)"
         }
@@ -9252,7 +9592,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 334,
+          "line_number": 356,
           "function_name": "validity",
           "code": "image(\"https://pbs.twimg.com/media/GjICcGQXYAAM4o1?format=jpg&name=4096x4096\", width=800)"
         }
@@ -9310,7 +9650,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 337,
+          "line_number": 359,
           "function_name": "what_are_we_evaluating",
           "code": "def what_are_we_evaluating():"
         }
@@ -9330,7 +9670,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 338,
+          "line_number": 360,
           "function_name": "what_are_we_evaluating",
           "code": "text(\"What are we even evaluating?\")"
         }
@@ -9358,7 +9698,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 339,
+          "line_number": 361,
           "function_name": "what_are_we_evaluating",
           "code": "text(\"In other words, what are the rules of a game?\")"
         }
@@ -9386,16 +9726,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 341,
+          "line_number": 363,
           "function_name": "what_are_we_evaluating",
-          "code": "text(\"Pre-foundation models, we evaluated methods (standardized train-test splits)\")"
+          "code": "text(\"Pre-foundation models, we evaluated **methods** (standardized train-test splits).\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Pre-foundation models, we evaluated methods (standardized train-test splits)",
+          "data": "Pre-foundation models, we evaluated **methods** (standardized train-test splits).",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9414,16 +9754,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 342,
+          "line_number": 364,
           "function_name": "what_are_we_evaluating",
-          "code": "text(\"Today, we're evaluating a system (anything goes)\")"
+          "code": "text(\"Today, we're evaluating **models/systems** (anything goes).\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Today, we're evaluating a system (anything goes)",
+          "data": "Today, we're evaluating **models/systems** (anything goes).",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9442,7 +9782,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 344,
+          "line_number": 366,
           "function_name": "what_are_we_evaluating",
           "code": "text(\"There are some exceptions...\")"
         }
@@ -9470,7 +9810,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 345,
+          "line_number": 367,
           "function_name": "what_are_we_evaluating",
           "code": "text(\"nanogpt speedrun: fixed data, compute time to get to a particular validation loss\")"
         }
@@ -9498,7 +9838,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 346,
+          "line_number": 368,
           "function_name": "what_are_we_evaluating",
           "code": "image(\"images/karpathy-nanogpt-speedrun.png\", width=600), x_link(\"https://x.com/karpathy/status/1846790537262571739\")"
         }
@@ -9543,7 +9883,7 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 347,
+          "line_number": 370,
           "function_name": "what_are_we_evaluating",
           "code": "text(\"DataComp-LM: given a raw dataset, get the best accuracy using standard training pipeline \"), link(\"https://arxiv.org/abs/2406.11794\")"
         }
@@ -9646,16 +9986,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 348,
+          "line_number": 372,
           "function_name": "what_are_we_evaluating",
-          "code": "text(\"These encourage algorithmic innovation from researchers.\")"
+          "code": "text(\"Evaluating methods encourage algorithmic innovation from researchers.\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "These encourage algorithmic innovation from researchers.",
+          "data": "Evaluating methods encourage algorithmic innovation from researchers.",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9674,16 +10014,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 349,
+          "line_number": 373,
           "function_name": "what_are_we_evaluating",
-          "code": "text(\"Evaluating systems is useful for users.\")"
+          "code": "text(\"Evaluating models/systems is useful for downstream users.\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Evaluating systems is useful for users.",
+          "data": "Evaluating models/systems is useful for downstream users.",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9702,16 +10042,16 @@
         },
         {
           "path": "lecture_12.py",
-          "line_number": 351,
+          "line_number": 375,
           "function_name": "what_are_we_evaluating",
-          "code": "text(\"Need to define the rules of the game!\")"
+          "code": "text(\"Either way, we need to define the rules of the game!\")"
         }
       ],
       "env": {},
       "renderings": [
         {
           "type": "markdown",
-          "data": "Need to define the rules of the game!",
+          "data": "Either way, we need to define the rules of the game!",
           "style": {},
           "external_link": null,
           "internal_link": null
@@ -9731,6 +10071,116 @@
       ],
       "env": {},
       "renderings": [],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 23,
+          "function_name": "main",
+          "code": "text(\"Takeaways\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "Takeaways",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 24,
+          "function_name": "main",
+          "code": "text(\"- There is no one true evaluation; choose the evaluation depending on what you're trying to measure.\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- There is no one true evaluation; choose the evaluation depending on what you're trying to measure.",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 25,
+          "function_name": "main",
+          "code": "text(\"- Always look at the individual instances and the predictions.\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- Always look at the individual instances and the predictions.",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 26,
+          "function_name": "main",
+          "code": "text(\"- There are many aspects to consider: capabilities, safety, costs, realism.\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- There are many aspects to consider: capabilities, safety, costs, realism.",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "stack": [
+        {
+          "path": "lecture_12.py",
+          "line_number": 27,
+          "function_name": "main",
+          "code": "text(\"- Clearly state the rules of the game (methods versus models/systems).\")"
+        }
+      ],
+      "env": {},
+      "renderings": [
+        {
+          "type": "markdown",
+          "data": "- Clearly state the rules of the game (methods versus models/systems).",
+          "style": {},
+          "external_link": null,
+          "internal_link": null
+        }
+      ],
       "stdout": "",
       "stderr": ""
     }

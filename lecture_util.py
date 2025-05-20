@@ -1,6 +1,10 @@
 from execute_util import link
 
 
+def named_link(name: str, url: str) -> str:
+    return link(title=f" [{name}]", url=url)
+
+
 def article_link(url: str) -> str:
     return link(title=" [article]", url=url)
 

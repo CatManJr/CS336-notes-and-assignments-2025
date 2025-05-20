@@ -202,7 +202,7 @@ def execute(module_name: str, inspect_all_variables: bool) -> Trace:
                     close_step.env[var] = to_serializable_value(locals[var])
                 else:
                     print(f"WARNING: variable {var} not found in locals")
-                print(f"    env: {var} = {close_step.env[var]}", file=real_stdout)
+                print(f"    env: {var} = {close_step.env.get(var)}", file=real_stdout)
         
             # Capture stdout and stderr
             close_step.stdout = stdout_buffer.getvalue()

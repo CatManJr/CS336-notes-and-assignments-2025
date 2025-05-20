@@ -12,3 +12,7 @@ einops
 jaxtyping
 readable-number
 triton
+kenlm
+fasttext
+mmh3
+bitarray

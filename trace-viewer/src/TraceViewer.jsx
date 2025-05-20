@@ -65,6 +65,8 @@ function TraceViewer() {
         stepOverForward({trace, currentStepIndex, navigate});
       } else if ((event.shiftKey && event.key === 'ArrowLeft') || event.key === 'k') {
         stepOverBackward({trace, currentStepIndex, navigate});
+      } else if (event.shiftKey && (event.key === 'ArrowRight' || event.key === 'l')) {
+        stepForward({trace, currentStepIndex, navigate, stayOnSameLine: true});
       } else if (event.key === 'u') {
         stepUp({trace, currentStepIndex, navigate});
       } else if (event.key === 'R') {
@@ -204,8 +206,8 @@ function stepBackward({currentStepIndex, navigate}) {
   }
 }
 
-function stepOverForward({trace, currentStepIndex, navigate}) {
-  const newStepIndex = getStepOverIndex({trace, currentStepIndex, direction: 1});
+function stepOverForward({trace, currentStepIndex, navigate, stayOnSameLine}) {
+  const newStepIndex = getStepOverIndex({trace, currentStepIndex, direction: 1, stayOnSameLine});
   if (newStepIndex < trace.steps.length) {
     updateUrlParams({ step: newStepIndex, source: null, line: null }, navigate);
   }
@@ -225,13 +227,13 @@ function stepUp({trace, currentStepIndex, navigate}) {
   }
 }
 
-function getStepOverIndex({trace, currentStepIndex, direction}) {
-  // Find the next step that is in the same level but not the same line
+function getStepOverIndex({trace, currentStepIndex, direction, stayOnSameLine}) {
+  // Find the next step that is in the same level (and if not stayOnSameLine, not the same line)
   const currentStep = trace.steps[currentStepIndex];
   let stepIndex = currentStepIndex + direction;
   while (stepIndex >= 0 && stepIndex < trace.steps.length) {
     if (inSameFunction(trace.steps[stepIndex].stack, currentStep.stack) &&
-        getLast(trace.steps[stepIndex].stack).line_number !== getLast(currentStep.stack).line_number) {
+        (!stayOnSameLine || getLast(trace.steps[stepIndex].stack).line_number !== getLast(currentStep.stack).line_number)) {
       return stepIndex;
     }
     if (isStrictAncestorOf(trace.steps[stepIndex].stack, currentStep.stack)) {

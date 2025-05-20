@@ -310,6 +310,8 @@ smollm2 = arxiv_reference("https://arxiv.org/pdf/2502.02737.pdf", notes=join(
 # 2025
 
 olmo2 = arxiv_reference("https://arxiv.org/abs/2501.00656", organization="AI2")
+dclm_2024 = arxiv_reference("https://arxiv.org/abs/2406.11794")
+nemotron_cc_2024 = arxiv_reference("https://arxiv.org/abs/2412.02595")
 
 deepseek_r1 = arxiv_reference("https://arxiv.org/pdf/2501.12948.pdf")
 
@@ -326,3 +328,9 @@ blt = arxiv_reference("https://arxiv.org/abs/2412.09871")
 tfree = arxiv_reference("https://arxiv.org/abs/2406.19223")
 
 sennrich_2016 = arxiv_reference("https://arxiv.org/abs/1508.07909")
+
+openwebtext = Reference(title="OpenWebText", authors=["Aaron Gokaslan", "Vanya Cohen"], date="2019", url="https://skylion007.github.io/OpenWebTextCorpus/")
+    
+alpaca = Reference(title="Alpaca", authors=["Rohan Taori", "Ishaan Gulrajani", "Tianyi Zhang", "Yann Dubois", "Xuechen Li", "Carlos Guestrin", "Percy Liang", "Tatsunori B. Hashimoto"], date="2023-03-13", url="https://crfm.stanford.edu/2023/03/13/alpaca.html")
+
+dolma = arxiv_reference("https://arxiv.org/abs/2402.00159")
