@@ -170,3 +170,4 @@ cython_debug/
 .DS_Store
 
 assignments/assignment1-basics/data/
+assignments/assignment1-basics/tiny_stories_model/checkpoints

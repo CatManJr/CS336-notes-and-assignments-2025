@@ -247,17 +247,17 @@ class TransformerLM(nn.Module):
         device = self.token_embeddings.weight.device
         token_ids = token_ids.to(device)
         
-        # 处理单个序列的情况 (没有批次维度)
+        # Ensure token_ids is 2D
         if token_ids.dim() == 1:
-            token_ids = token_ids.unsqueeze(0)  # 添加批次维度
+            token_ids = token_ids.unsqueeze(0)  # Ensure batch dimension
         
-        # 获取批次大小和序列长度
+        # Get batch size and sequence length
         batch_size, seq_len = token_ids.size()
         
-        # 嵌入和位置编码
+        # Token embeddings & RoPE
         x = self.token_embeddings(token_ids)  # (batch_size, seq_len, d_model)
         
-        # 从 0 到 seq_len-1 的位置编码
+        # Generate positions tensor for RoPE
         positions = torch.arange(0, seq_len, device=device).unsqueeze(0).expand(batch_size, -1)
         
         # Pass through each transformer block
