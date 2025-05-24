@@ -5,7 +5,7 @@ This repo contains the lecture materials for "Stanford CS336: Language modeling 
 ## Under implementation
 I'm gradually execute the lectures and finish all the assignments in this repo.
 ### Update: Assignment 1 finished. May 20 ☕
-The model with a BPE tokenizer is in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-lectures/assignment/assianment1-basics/cs336_basics). I only run one experiment on my mac because I do not have the permission to use the H100.
+The Decoder-only model with RoPE, SwiGLU and a BPE tokenizer is in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-lectures/assignment/assianment1-basics/cs336_basics). I only run one experiment on my mac because I do not have the permission to use the H100.
 The training result is acceptable with val loss at 1.71 but unluckily the pt file is to large (over 300MB) to be pushed to this repo.
 
 #### Training Summary             
@@ -24,6 +24,8 @@ fearful anymore. They all had a fun day at the park.<|endoftext|>Once
 ```
 There is still a issue in my `RoPE module`. I modified it to run training in defferent bath sizes, but then it cannot pass the pytest by Stanford. To pass the pytest, the training script can only run with `batch_size = 8` & `batch_size = 1`
 
+### Update: Assignment 2 started. May 24 ☕
+I am not going to run all the experiments neither as I do not have any GPUs myself. But I'll again try to implement all the problems to pass the pytest. 
 ## Non-executable (ppt/pdf) lectures
 
 Located in `nonexecutable/`as PDFs
