@@ -26,7 +26,7 @@ There is still a issue in my `RoPE module`. I modified it to run training in def
 
 ### Update: Assignment 2 partly finished. May 31 ☕
 I am not going to run all the experiments neither as I do not have any GPUs myself. But I'll again try to implement all the problems to pass the pytest. (May 24, 2025)
-I imported my TransformerLM in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336-basics). And the tasks including Flash-Attention2 triton kernels are implemented and passed course pytest. Due to the lack of GPU, I haven't test my triton kernels.(May 31, 2025) I'm not sure if I would review and run them on GPUs in the future. All the code for the assignment is in [`assignment/assianment2-system/cs336_system`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336_systems)
+I imported my TransformerLM in [`assignment/assianment2-systems/cs336_basics`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336-basics). And the tasks including Flash-Attention2 triton kernels are implemented and passed course pytest. Due to the lack of GPU, I haven't test my triton kernels.(May 31, 2025) I'm not sure if I would review and run them on GPUs in the future. All the code for the assignment is in [`assignment/assianment2-systems/cs336_systems`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336_systems)
 ## Non-executable (ppt/pdf) lectures
 
 Located in `nonexecutable/`as PDFs
