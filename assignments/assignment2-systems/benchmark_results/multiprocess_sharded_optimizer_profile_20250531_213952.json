@@ -1,0 +1,113 @@
+{
+  "timestamp": "20250531_213952",
+  "world_size": 2,
+  "model_size": "medium",
+  "regular_results": [
+    {
+      "use_sharded_optimizer": false,
+      "rank": 0,
+      "world_size": 2,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory_progression": {
+        "baseline_mb": 163.546875,
+        "model_mb": 334.625,
+        "optimizer_mb": 398.3125,
+        "batch_mb": 398.53125,
+        "forward_mb": 767.40625,
+        "backward_mb": 903.703125,
+        "step_mb": 1090.828125,
+        "peak_mb": 1090.828125
+      },
+      "memory_breakdown": {
+        "model_params_mb": 167.095703125,
+        "optimizer_states_mb": 63.6875,
+        "expected_optimizer_mb": 501.287109375,
+        "activations_mb": 368.875,
+        "gradients_mb": 136.296875
+      },
+      "loss_value": 9.273292541503906
+    },
+    {
+      "use_sharded_optimizer": false,
+      "rank": 1,
+      "world_size": 2,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory_progression": {
+        "baseline_mb": 163.15625,
+        "model_mb": 334.28125,
+        "optimizer_mb": 398.671875,
+        "batch_mb": 398.890625,
+        "forward_mb": 763.359375,
+        "backward_mb": 882.46875,
+        "step_mb": 1099.625,
+        "peak_mb": 1099.625
+      },
+      "memory_breakdown": {
+        "model_params_mb": 167.095703125,
+        "optimizer_states_mb": 64.390625,
+        "expected_optimizer_mb": 501.287109375,
+        "activations_mb": 364.46875,
+        "gradients_mb": 119.109375
+      },
+      "loss_value": 9.24296760559082
+    }
+  ],
+  "sharded_results": [
+    {
+      "use_sharded_optimizer": true,
+      "rank": 1,
+      "world_size": 2,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory_progression": {
+        "baseline_mb": 163.90625,
+        "model_mb": 335.296875,
+        "optimizer_mb": 400.3125,
+        "batch_mb": 400.53125,
+        "forward_mb": 753.875,
+        "backward_mb": 890.96875,
+        "step_mb": 1134.296875,
+        "peak_mb": 1134.296875
+      },
+      "memory_breakdown": {
+        "model_params_mb": 167.095703125,
+        "optimizer_states_mb": 65.015625,
+        "expected_optimizer_mb": 250.6435546875,
+        "activations_mb": 353.34375,
+        "gradients_mb": 137.09375
+      },
+      "loss_value": 9.235047340393066
+    },
+    {
+      "use_sharded_optimizer": true,
+      "rank": 0,
+      "world_size": 2,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory_progression": {
+        "baseline_mb": 163.703125,
+        "model_mb": 334.8125,
+        "optimizer_mb": 399.3125,
+        "batch_mb": 399.53125,
+        "forward_mb": 754.4375,
+        "backward_mb": 871.765625,
+        "step_mb": 1092.03125,
+        "peak_mb": 1092.03125
+      },
+      "memory_breakdown": {
+        "model_params_mb": 167.095703125,
+        "optimizer_states_mb": 64.5,
+        "expected_optimizer_mb": 250.6435546875,
+        "activations_mb": 354.90625,
+        "gradients_mb": 117.328125
+      },
+      "loss_value": 9.25836181640625
+    }
+  ]
+}

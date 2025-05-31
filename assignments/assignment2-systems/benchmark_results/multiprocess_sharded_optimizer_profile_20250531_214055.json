@@ -1,0 +1,105 @@
+{
+  "timestamp": "20250531_214055",
+  "world_size": 8,
+  "model_size": "medium",
+  "regular_results": [
+    {
+      "rank": 6,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 3,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 1,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 5,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 4,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 2,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 7,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    },
+    {
+      "rank": 0,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": false,
+      "model_size": "medium"
+    }
+  ],
+  "sharded_results": [
+    {
+      "rank": 0,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 1,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 2,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 3,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 6,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 4,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 5,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    },
+    {
+      "rank": 7,
+      "error": "cannot reshape tensor of 0 elements into shape [0, 8, 256, -1, 2] because the unspecified dimension size -1 can be any value and is ambiguous",
+      "use_sharded_optimizer": true,
+      "model_size": "medium"
+    }
+  ]
+}

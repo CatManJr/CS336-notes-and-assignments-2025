@@ -16,10 +16,10 @@ def test_model_import():
     try:
         from cs336_basics.transformer import TransformerLM
         print("  ✓ TransformerLM import successful")
-        return True
+        assert True  # Test passed
     except ImportError as e:
         print(f"  ❌ Failed to import TransformerLM: {e}")
-        return False
+        assert False, f"Failed to import TransformerLM: {e}"
 
 def test_benchmark_import():
     """Test that we can import functions from benchmark.py"""
@@ -27,10 +27,10 @@ def test_benchmark_import():
     try:
         from benchmark import get_model, benchmark, print_gpu_specs
         print("  ✓ Benchmark module import successful")
-        return True
+        assert True  # Test passed
     except ImportError as e:
         print(f"  ❌ Failed to import from benchmark: {e}")
-        return False
+        assert False, f"Failed to import from benchmark: {e}"
 
 def test_model_creation():
     """Test that model can be created and has correct structure"""
@@ -61,11 +61,10 @@ def test_model_creation():
         # Check model can be moved to different device
         model.to('cpu')
         print("  ✓ Model creation test passed")
-        return True
     except Exception as e:
         print(f"  ❌ Model creation failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"Model creation failed: {e}"
 
 def test_model_forward():
     """Test that model forward pass works"""
@@ -103,11 +102,10 @@ def test_model_forward():
         print(f"  Forward pass output shape: {logits.shape}")
         print(f"  Output range: [{logits.min():.3f}, {logits.max():.3f}]")
         print("  ✓ Model forward pass test passed")
-        return True
     except Exception as e:
         print(f"  ❌ Model forward pass failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"Model forward pass failed: {e}"
 
 def test_model_backward():
     """Test that model backward pass works"""
@@ -159,11 +157,10 @@ def test_model_backward():
         
         model.zero_grad()
         print("  ✓ Model backward pass test passed")
-        return True
     except Exception as e:
         print(f"  ❌ Model backward pass failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"Model backward pass failed: {e}"
 
 def test_benchmark_function():
     """Test the benchmark function itself"""
@@ -200,11 +197,10 @@ def test_benchmark_function():
         print(f"  Mean time: {results['mean']:.3f} ms")
         print(f"  Std time: {results['std']:.3f} ms")
         print("  ✓ Benchmark function test passed")
-        return True
     except Exception as e:
         print(f"  ❌ Benchmark function test failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"Benchmark function test failed: {e}"
 
 def test_end_to_end_minimal():
     """Test end-to-end benchmark with minimal model"""
@@ -257,11 +253,10 @@ def test_end_to_end_minimal():
         print(f"  Backward/Forward ratio: {ratio:.2f}x")
         
         print("  ✓ End-to-end benchmark test passed")
-        return True
     except Exception as e:
         print(f"  ❌ End-to-end benchmark test failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"End-to-end benchmark test failed: {e}"
 
 def test_different_model_sizes():
     """Test benchmark with different model sizes"""
@@ -298,11 +293,10 @@ def test_different_model_sizes():
             print(f"    Time: {results['mean']:.3f} ms")
         
         print("  ✓ Different model sizes test passed")
-        return True
     except Exception as e:
         print(f"  ❌ Different model sizes test failed: {e}")
         traceback.print_exc()
-        return False
+        assert False, f"Different model sizes test failed: {e}"
 
 def run_all_tests():
     """Run all tests and return summary"""

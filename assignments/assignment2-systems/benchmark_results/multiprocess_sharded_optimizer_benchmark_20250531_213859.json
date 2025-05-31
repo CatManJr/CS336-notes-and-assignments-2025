@@ -1,0 +1,150 @@
+{
+  "timestamp": "20250531_213859",
+  "world_size": 2,
+  "model_size": "medium",
+  "num_iterations": 5,
+  "regular_results": [
+    {
+      "rank": 1,
+      "world_size": 2,
+      "use_sharded": false,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory": {
+        "baseline_mb": 163.390625,
+        "model_mb": 334.515625,
+        "optimizer_mb": 398.59375,
+        "data_mb": 398.734375,
+        "warmup_mb": 1393.578125,
+        "peak_mb": 1455.0,
+        "breakdown": {
+          "param_memory_mb": 167.095703125,
+          "optimizer_states_mb": 64.078125,
+          "expected_optimizer_mb": 501.287109375,
+          "activations_mb": 994.84375
+        }
+      },
+      "timing": {
+        "total_time_s": 2.099111795425415,
+        "avg_iteration_ms": 377.09994316101074,
+        "min_iteration_ms": 342.482328414917,
+        "max_iteration_ms": 427.37603187561035,
+        "all_times_ms": [
+          368.67213249206543,
+          398.17118644714355,
+          342.482328414917,
+          427.37603187561035,
+          348.7980365753174
+        ]
+      }
+    },
+    {
+      "rank": 0,
+      "world_size": 2,
+      "use_sharded": false,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory": {
+        "baseline_mb": 162.84375,
+        "model_mb": 333.90625,
+        "optimizer_mb": 399.421875,
+        "data_mb": 399.5625,
+        "warmup_mb": 1330.671875,
+        "peak_mb": 1401.171875,
+        "breakdown": {
+          "param_memory_mb": 167.095703125,
+          "optimizer_states_mb": 65.515625,
+          "expected_optimizer_mb": 501.287109375,
+          "activations_mb": 931.109375
+        }
+      },
+      "timing": {
+        "total_time_s": 2.099203109741211,
+        "avg_iteration_ms": 419.75955963134766,
+        "min_iteration_ms": 304.38780784606934,
+        "max_iteration_ms": 488.77406120300293,
+        "all_times_ms": [
+          488.77406120300293,
+          477.7228832244873,
+          373.0511665344238,
+          454.8618793487549,
+          304.38780784606934
+        ]
+      }
+    }
+  ],
+  "sharded_results": [
+    {
+      "rank": 0,
+      "world_size": 2,
+      "use_sharded": true,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory": {
+        "baseline_mb": 163.09375,
+        "model_mb": 334.078125,
+        "optimizer_mb": 397.8125,
+        "data_mb": 397.953125,
+        "warmup_mb": 1369.015625,
+        "peak_mb": 1517.375,
+        "breakdown": {
+          "param_memory_mb": 167.095703125,
+          "optimizer_states_mb": 63.734375,
+          "expected_optimizer_mb": 250.6435546875,
+          "activations_mb": 971.0625
+        }
+      },
+      "timing": {
+        "total_time_s": 2.1631736755371094,
+        "avg_iteration_ms": 432.5948238372803,
+        "min_iteration_ms": 424.09706115722656,
+        "max_iteration_ms": 446.1629390716553,
+        "all_times_ms": [
+          446.1629390716553,
+          430.44018745422363,
+          424.09706115722656,
+          431.9338798522949,
+          430.340051651001
+        ]
+      }
+    },
+    {
+      "rank": 1,
+      "world_size": 2,
+      "use_sharded": true,
+      "model_size": "medium",
+      "total_params": 43803136,
+      "batch_size_per_rank": 2,
+      "memory": {
+        "baseline_mb": 163.234375,
+        "model_mb": 334.421875,
+        "optimizer_mb": 398.40625,
+        "data_mb": 398.546875,
+        "warmup_mb": 1320.328125,
+        "peak_mb": 1391.21875,
+        "breakdown": {
+          "param_memory_mb": 167.095703125,
+          "optimizer_states_mb": 63.984375,
+          "expected_optimizer_mb": 250.6435546875,
+          "activations_mb": 921.78125
+        }
+      },
+      "timing": {
+        "total_time_s": 2.1632180213928223,
+        "avg_iteration_ms": 432.59215354919434,
+        "min_iteration_ms": 424.0567684173584,
+        "max_iteration_ms": 446.14386558532715,
+        "all_times_ms": [
+          446.14386558532715,
+          430.48596382141113,
+          424.0567684173584,
+          431.9329261779785,
+          430.3412437438965
+        ]
+      }
+    }
+  ]
+}
