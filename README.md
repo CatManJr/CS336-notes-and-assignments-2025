@@ -5,7 +5,7 @@ This repo contains the lecture materials for "Stanford CS336: Language modeling 
 ## Under implementation
 I'm gradually execute the lectures and finish all the assignments in this repo.
 ### Update: Assignment 1 finished. May 20 ☕
-The Decoder-only model with RoPE, SwiGLU and a BPE tokenizer is in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-lectures/assignment/assianment1-basics/cs336_basics). I only run one experiment on my mac because I do not have the permission to use the H100.
+The Decoder-only model with RoPE, SwiGLU and a BPE tokenizer is in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment1-basics/cs336_basics). I only run one experiment on my mac because I do not have the permission to use the H100.
 The training result is acceptable with val loss at 1.71 but unluckily the pt file is to large (over 300MB) to be pushed to this repo.
 
 #### Training Summary             
@@ -24,8 +24,9 @@ fearful anymore. They all had a fun day at the park.<|endoftext|>Once
 ```
 There is still a issue in my `RoPE module`. I modified it to run training in defferent bath sizes, but then it cannot pass the pytest by Stanford. To pass the pytest, the training script can only run with `batch_size = 8` & `batch_size = 1`
 
-### Update: Assignment 2 started. May 24 ☕
-I am not going to run all the experiments neither as I do not have any GPUs myself. But I'll again try to implement all the problems to pass the pytest. 
+### Update: Assignment 2 partly finished. May 31 ☕
+I am not going to run all the experiments neither as I do not have any GPUs myself. But I'll again try to implement all the problems to pass the pytest. (May 24, 2025)
+I imported my TransformerLM in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336-basics). And the tasks including Flash-Attention2 triton kernels are implemented and passed course pytest. Due to the lack of GPU, I haven't test my triton kernels.(May 31, 2025) I'm not sure if I would review and run them on GPUs in the future. All the code for the assignment is in [`assignment/assianment2-system/cs336_system`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment2-systems/cs336_systems)
 ## Non-executable (ppt/pdf) lectures
 
 Located in `nonexecutable/`as PDFs
