@@ -1,0 +1,8 @@
+,,,,mean_time_ms,mean_time_ms,bandwidth_mb_per_sec,bandwidth_mb_per_sec,min_time_ms
+,,,,mean,std,mean,std,mean
+backend,device,world_size,size_mb,,,,,
+gloo,cpu,2,1.0,0.665,0.04,1505.589,90.369,0.458
+gloo,cpu,2,10.0,4.479,0.038,2232.958,18.963,3.956
+gloo,cpu,4,1.0,1.76,0.026,852.353,12.781,1.095
+gloo,cpu,4,10.0,6.217,0.024,2412.908,9.293,5.028
+gloo,cpu,4,100.0,58.04,0.058,2584.409,2.57,50.748

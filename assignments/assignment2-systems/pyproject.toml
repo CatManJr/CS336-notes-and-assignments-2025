@@ -16,6 +16,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "wandb>=0.19.7",
     "pandas>=2",
+    "seaborn>=0.13.2",
 ]
 
 [tool.setuptools.packages.find]
