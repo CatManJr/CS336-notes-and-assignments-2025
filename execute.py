@@ -115,6 +115,9 @@ def execute(module_name: str, inspect_all_variables: bool) -> Trace:
     # Figure out which files we're actually tracing
     visible_paths = []
 
+    # Stack of locations that we're stepping over
+    stepovers = []
+
     def get_stack() -> list[StackElement]:
         """Return the last element of `stack`, but skip over items where local_trace_func is active."""
         stack = []
@@ -162,6 +165,16 @@ def execute(module_name: str, inspect_all_variables: bool) -> Trace:
 
         # Print the current line of code
         item = stack[-1]
+        if "@stepover" in item.code:
+            if len(stepovers) > 0 and stepovers[-1] == (item.path, item.line_number):
+                stepovers.pop()
+            else:
+                stepovers.append((item.path, item.line_number))
+        
+        # Skip everything that is strictly under stepovers
+        if any(stepover[0] == item.path and stepover[1] == item.line_number for stepover in stepovers for item in stack[:-1]):
+            return trace_func
+
         print(f"  [{len(steps)} {os.path.basename(item.path)}:{item.line_number}] {item.code}", file=real_stdout)
 
         open_step = Step(

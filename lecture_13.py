@@ -303,7 +303,7 @@ def stackexchange():
 
     text("- Q&A format is close to instruction tuning / real application")
     text("- Note: there is metadata (users, votes, comments, badges, tags) for filtering")
-    text("- Data dumps in XML (anonymized, include metadata) "), named_link("link", "https://archive.org/details/stackexchange)")
+    text("- Data dumps in XML (anonymized, include metadata) "), named_link("link", "https://archive.org/details/stackexchange")
 
 
 def github():

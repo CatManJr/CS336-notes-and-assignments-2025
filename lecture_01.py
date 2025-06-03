@@ -8,8 +8,8 @@ from execute_util import link, image, text
 from lecture_util import article_link, x_link, youtube_link
 from references import gpt_3, gpt4, shannon1950, bengio2003, susketver2014, \
     bahdanau2015_attention, transformer_2017, gpt2, t5, kaplan_scaling_laws_2020, \
-    gpt_3, the_pile, gpt_j, opt_175b, bloom, palm, chinchilla, llama, mistral_7b, \
-    instruct_gpt, dpo, adamw2017, lima, deepseek_v3, adam2014, grpo, ppo2017, muon, \
+    the_pile, gpt_j, opt_175b, bloom, palm, chinchilla, llama, mistral_7b, \
+    instruct_gpt, dpo, adamw2017, lima, deepseek_v3, adam2014, run_policy_gradient, ppo2017, muon, \
     large_batch_training_2018, wsd_2024, cosine_learning_rate_2017, olmo_7b, moe_2017, \
     megatron_lm_2019, shazeer_2020, elmo, bert, qwen_2_5, deepseek_r1, moe_2017, \
     rms_norm_2019, rope_2021, soap, gqa, mla, deepseek_67b, deepseek_v2, brants2007, \
@@ -473,7 +473,7 @@ def learning_from_feedback():
     text("## Algorithms")
     text("- Proximal Policy Optimization (PPO) from reinforcement learning "), link(ppo2017), link(instruct_gpt)
     text("- Direct Policy Optimization (DPO): for preference data, simpler "), link(dpo)
-    text("- Group Relative Preference Optimization (GRPO): remove value function "), link(grpo)
+    text("- Group Relative Preference Optimization (GRPO): remove value function "), link(run_policy_gradient)
 
 
 ############################################################

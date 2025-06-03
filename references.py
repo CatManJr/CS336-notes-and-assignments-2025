@@ -334,3 +334,5 @@ openwebtext = Reference(title="OpenWebText", authors=["Aaron Gokaslan", "Vanya C
 alpaca = Reference(title="Alpaca", authors=["Rohan Taori", "Ishaan Gulrajani", "Tianyi Zhang", "Yann Dubois", "Xuechen Li", "Carlos Guestrin", "Percy Liang", "Tatsunori B. Hashimoto"], date="2023-03-13", url="https://crfm.stanford.edu/2023/03/13/alpaca.html")
 
 dolma = arxiv_reference("https://arxiv.org/abs/2402.00159")
+
+qwen3 = arxiv_reference("https://arxiv.org/abs/2505.09388")

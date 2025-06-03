@@ -16,3 +16,4 @@ kenlm
 fasttext
 mmh3
 bitarray
+matplotlib
