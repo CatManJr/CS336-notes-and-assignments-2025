@@ -30,7 +30,19 @@ I imported my TransformerLM in [`assignment/assianment2-systems/cs336_basics`](h
 Triton related part finished: I test the triton kernels on A100-PCIE-40G and adopted the codes I used in `My Kernel Templates` in this repo too.(June 7)
 
 ### Update: Assignment 3 finished. July 8 ☕
-I don't have the admission of using Stanford training api. So I simply simulated the training process. Please turn to [`assignment/assignment3-scaling/cs336_scaling`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment3-scaling/cs336_scaling) for more details.
+This assignment provides guidance on how to use scaling laws to estimate the performance of larger models based on their lighter version. I don't have the admission of using Stanford training api. So I simply simulated the training process. Please turn to [`assignment/assignment3-scaling/cs336_scaling`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment3-scaling/cs336_scaling) for more details.
+
+### Update: Assignment 4 finished. July 8 ☕
+I implemented the required APIs that aim to construct an acceptable dataset from unfiltered web content. All tests passed. As I don't want to pollute the official leaderboard, I implemented a similar scoring system running on macOS. The scoring results are as below:
+
+`SUMMARY:`
+Filtered data: filtered_data/combined_filtered.txt (0.0 MB)  
+Tokenized data: results/tokenized_data.bin (0.0 MB)  
+Best validation loss: 4.4334  
+Best validation perplexity: 84.21  
+Data quality score: 0.089  
+
+The performance was very poor because I used a very sketchy piece of content.
 
 ## Non-executable (ppt/pdf) lectures
 
