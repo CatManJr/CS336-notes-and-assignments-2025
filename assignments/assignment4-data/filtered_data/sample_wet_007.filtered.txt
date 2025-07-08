@@ -1,0 +1,29 @@
+Document 7_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 7_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 7_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+

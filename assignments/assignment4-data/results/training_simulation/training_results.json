@@ -1,0 +1,10 @@
+{
+  "best_val_loss": 4.433354752270343,
+  "best_val_perplexity": 84.21345884759968,
+  "best_step": 46000,
+  "final_val_loss": 4.498759780899165,
+  "final_val_perplexity": 89.90555953589838,
+  "data_quality_score": 0.08933852955132654,
+  "num_tokens": 14750,
+  "simulation_time": 0.00013709068298339844
+}

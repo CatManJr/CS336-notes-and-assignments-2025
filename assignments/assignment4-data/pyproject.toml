@@ -19,6 +19,7 @@ dependencies = [
     "nltk>=3.9.1",
     "fastwarc>=0.15.2",
     "tldextract>=5.3.0",
+    "matplotlib>=3.10.3",
 ]
 
 [tool.setuptools.packages.find]

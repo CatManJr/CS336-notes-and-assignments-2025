@@ -1,0 +1,290 @@
+Document 5_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 5_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 5_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 2_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 2_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 2_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 3_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 3_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 3_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 4_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 4_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 4_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 9_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 9_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 9_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 8_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 8_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 8_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 6_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 6_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 6_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 1_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 1_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 1_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 0_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 0_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 0_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
+Document 7_0
+Machine learning is a method of data analysis that automates analytical model building. 
+        It is a branch of artificial intelligence based on the idea that systems can learn from data, 
+        identify patterns and make decisions with minimal human intervention. Machine learning algorithms 
+        build a mathematical model based on training data in order to make predictions or decisions 
+        without being explicitly programmed to do so.
+        
+        The process typically involves collecting data, preparing and cleaning the data, choosing a model, 
+        training the algorithm, evaluating the model, parameter tuning and prediction. There are several 
+        types of machine learning including supervised learning, unsupervised learning, and reinforcement learning.
+
+Document 7_1
+Python is a programming language that was created in the late 1980s by Guido van Rossum. 
+        It has become one of the most popular programming languages in the world. Python is known 
+        for its simple and readable syntax, which makes it easy for beginners to learn.
+        
+        Python can be used for many different types of applications including web development, 
+        data analysis, artificial intelligence, and automation. Many companies use Python including 
+        Google, Netflix, and Instagram.
+
+Document 7_3
+The transformer architecture, introduced by Vaswani et al. in 2017, has revolutionized 
+        natural language processing. The key innovation was the attention mechanism, which allows 
+        the model to focus on different parts of the input sequence when generating each output token.
+        
+        The attention mechanism computes a weighted sum of all input representations, where the weights 
+        are determined by the compatibility between a query and key vectors. This allows the model to 
+        capture long-range dependencies more effectively than recurrent neural networks.
+
