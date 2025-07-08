@@ -2,7 +2,7 @@
 
 This repo contains the lecture materials for "Stanford CS336: Language modeling from scratch".
 
-## Under implementation
+## Under implementation: course assignments
 I'm gradually executing the lectures and finish all the assignments in this repo. `(last update: 07-08-2025)`
 ### Update: Assignment 1 finished. May 20 ☕
 The Decoder-only model with RoPE, SwiGLU and a BPE tokenizer is in [`assignment/assianment1-basics/cs336_basics`](https://github.com/CatManJr/spring2025-notes-and-assignments/tree/main/assignments/assignment1-basics/cs336_basics). I only run one experiment on my mac because I do not have the permission to use the H100 provided by CS336 in Stanford.
@@ -43,6 +43,9 @@ Best validation perplexity: 84.21
 Data quality score: 0.089  
 
 The performance was very poor because I used a very sketchy piece of content.
+
+### Update: Assignment 5 started. July 8 ☕
+Yeah! 3 assignments in a row! Catman is on fire mate! :fire:
 
 ## Non-executable (ppt/pdf) lectures
 
