@@ -218,25 +218,18 @@ def sft_microbatch_train_step(
     # Calculate the sum of negative log probabilities for response tokens only
     masked_log_probs = policy_log_probs * response_mask.float()
     sum_log_probs = masked_log_probs.sum()
-    
-    # Count the number of response tokens
-    num_response_tokens = response_mask.float().sum()
 
-    if num_response_tokens > 0:
-        # Calculate the mean negative log probability
-        loss = -sum_log_probs / (num_response_tokens * normalize_constant)
-    else:
-        # Return a zero loss that is still connected to the computation graph
-        loss = (policy_log_probs * 0.0).sum()
+    # The loss is the negative sum of log probabilities divided by normalize_constant
+    # and scaled by 1/(gradient_accumulation_steps * 2)
+    loss = -sum_log_probs / (normalize_constant * gradient_accumulation_steps * 2)
 
-    # Scale by gradient accumulation steps
-    scaled_loss = loss / gradient_accumulation_steps
-    
-    scaled_loss.backward()
+    # Call backward() as required by the specification
+    loss.backward()
 
+    # Return the loss for logging
     metadata = {"loss": loss.item()}
 
-    return scaled_loss, metadata
+    return loss, metadata
 
 
 def log_generations(
