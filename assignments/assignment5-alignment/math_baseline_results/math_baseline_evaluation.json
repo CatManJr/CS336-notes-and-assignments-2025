@@ -1,0 +1,109 @@
+{
+  "summary": {
+    "total_examples": 16110,
+    "correct_format_and_answer": 0,
+    "correct_format_wrong_answer": 101,
+    "wrong_format": 16009,
+    "avg_format_reward": 0.006269397889509622,
+    "avg_answer_reward": 0.0,
+    "avg_total_reward": 0.0,
+    "accuracy": 0.0,
+    "format_accuracy": 0.006269397889509622
+  },
+  "evaluation_info": {
+    "total_examples_evaluated": 16110,
+    "timestamp": "2025-07-11T16:42:07.356661",
+    "categories": {
+      "correct_format_and_answer": 0,
+      "correct_format_wrong_answer": 101,
+      "wrong_format": 16009
+    }
+  },
+  "sample_examples": {
+    "correct_format_and_answer": [],
+    "correct_format_wrong_answer": [
+      {
+        "example_id": 78,
+        "generated_text": " reasoning process here </think> <answer> answer here </answer>",
+        "ground_truth": "To solve this problem, we need to work through each part step-by-step using the given information.\n\n1. **Determine the value of the growth constant \\( k \\).**\n\n   We know that the lesion doubles in size every 10 days which means:\n   \\[\n   L(10) = 2A\n   \\]\n   According to the given growth model:\n   \\[\n   L(t) = A e^{kt}\n   \\]\n   Substituting \\( t = 10 \\) into the equation:\n   \\[\n   L(10) = A e^{10k} = 2A\n   \\]\n   By dividing both sides by \\( A \\), we get:\n   \\[\n   e^{10k} = 2\n   \\]\n   To solve fo...",
+        "format_reward": 1.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 294,
+        "generated_text": " If the number of quotes per article follows a Poisson distribution with an unknown mean \u03bb and we have collected a total of N quotes from n articles with m quotes each, then the likelihood function for the Poisson distribution is given by:\n\nL(\u03bb) = (e^(-\u03bb) * \u03bb^(N)) / (N!)\n\nTaking the natural logarithm of the likelihood function to simplify the calculations:\n\nln(L(\u03bb)) = -\u03bb + N * ln(\u03bb) - ln(N!)\n\nTo find the maximum likelihood estimate of \u03bb, we need to maximize the log-likelihood function. We can do...",
+        "ground_truth": "To solve the problem, let's tackle each part step-by-step.\n\n### Part 1: Maximum Likelihood Estimate of \u03bb\n\n1. **Understand the Poisson distribution**: The Poisson distribution is often used to model the number of times an event occurs in a fixed interval of time or space. Here, we're modeling the number of quotes per article as a Poisson random variable with mean \u03bb.\n\n2. **Data given**:\n   - 500 different articles.\n   - Each article contains between 5 to 10 quotes.\n\n3. **Find Total Number of Quote...",
+        "format_reward": 1.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 301,
+        "generated_text": "The probability of a randomly selected child from Group A having both a cognitive improvement (C) and an emotional response (E) greater than 75 can be calculated by finding the probabilities of C > 75 and E > 75 separately and then using the assumption of independence since the two variables are not correlated if not stated otherwise. </think> <answer>Using the normal distribution for C and E, the probabilities can be calculated as follows: For Group A: P(C > 75) \u2248 0.2853 (using the standard nor...",
+        "ground_truth": "To solve the given problem, we will tackle each part step-by-step.\n\n### Part 1: Probability Calculation for Group A\n\nFor Group A, we need to calculate the probability that a randomly selected child has both cognitive improvement \\( C \\) and emotional response \\( E \\) greater than 75. Both \\( C \\) and \\( E \\) follow normal distributions:\n\n- \\( C \\sim N(70, 10^2) \\)\n- \\( E \\sim N(65, 12^2) \\)\n\n**Step 1: Calculate the probability for \\( C > 75 \\)**\n\nThe cognitive improvement \\( C \\) follows \\( N(70...",
+        "format_reward": 1.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 766,
+        "generated_text": " Starting revenue ($100,000) </think> <answer> Initial revenue = $100,000 </answer>",
+        "ground_truth": "To solve the problem, we will address each sub-problem step-by-step.\n\n### Sub-problem 1: Revenue Calculation\n\n1. **Initial Revenue**: \n   - Year 0: $100,000 (initial investment)\n\n2. **Revenue in Year 1**: \n   - Year 1 growth rate: 30%\n   - Revenue in Year 1 = $100,000 \\times (1 + 0.30) = $130,000\n\n3. **Revenue in Year 2**: \n   - Year 2 growth rate: 30%\n   - Revenue in Year 2 = $130,000 \\times (1 + 0.30) = $169,000\n\n4. **Revenue in Year 3**: \n   - Year 3 growth rate: 30%\n   - Revenue in Year 3 = ...",
+        "format_reward": 1.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 846,
+        "generated_text": " \u0414\u043b\u044f \u0440\u0430\u0432\u043d\u043e\u0432\u0435\u0441\u0438\u044f \u043c\u0435\u0436\u0434\u0443 zeit\u043e\u043c \u043d\u0430 \u043f\u0435\u0440\u0432\u043e\u0435 \u0438 \u0432\u0442\u043e\u0440\u043e\u0435 encore, decline rates \\(\\phi\\)\u6301\u81ea\u7136\u754c\u0430 Coin anni \\(\\frac{1 + \\sqrt{5}}{2}\\)\u9602! </think> <answer> \\[ w = \\frac{\\phi}{1 + \\phi} t, \\quad l = \\frac{1}{1 + \\phi} t \\] </answer>",
+        "ground_truth": "To solve this problem, we will tackle it step-by-step as requested.\n\n### Part 1:\n\nWe know that the relationship between work \\(w\\) and life \\(l\\) time is given by the golden ratio \\(\\phi = \\frac{1 + \\sqrt{5}}{2}\\). So, we have:\n\n\\[\n\\frac{w}{l} = \\phi\n\\]\n\nThis implies:\n\n\\[\nw = \\phi \\cdot l\n\\]\n\nWe are also given that \\(w + l = t\\), or:\n\n\\[\nw + l = 16\n\\]\n\nSubstituting \\(w = \\phi \\cdot l\\) into the equation \\(w + l = 16\\), we get:\n\n\\[\n\\phi \\cdot l + l = 16\n\\]\n\n\\[\nl(\\phi + 1) = 16\n\\]\n\nSolving for \\(l...",
+        "format_reward": 1.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      }
+    ],
+    "wrong_format": [
+      {
+        "example_id": 0,
+        "generated_text": " We start by solving part 1; calculating the expected value and variance of the number of cases won.\n\nLet \\( X \\) be the number of cases won in a sample of 200. Since each case is independently won with probability 0.35, \\( X \\) follows a binomial distribution \\( X \\sim \\text{Bin}(200, 0.35) \\).\n\nThe expected value \\( E(X) \\) of a binomial random variable is \\( np \\):\n\\[ E(X) = 200 \\times 0.35 = 70 \\]\n\nThe variance \\( \\text{Var}(X) \\) of a binomial random variable is \\( np(1-p) \\):\n\\[ \\text{Var}...",
+        "ground_truth": "To solve the given problem, we address the sub-problems one by one.\n\n**Sub-problem 1:**\n\nFirst, we need to calculate the expected value and variance of the number of cases won when examining a sample of 200 cases. \n\nGiven:\n- Probability of winning a case, \\( P(\\text{Win}) = 0.35 \\).\n- Sample size, \\( n = 200 \\).\n\nThe number of cases won, \\( Y \\), follows a binomial distribution with parameters \\( n = 200 \\) and \\( p = 0.35 \\).\n\n**Expected Value:**\nThe expected value \\( E(Y) \\) for a binomial dis...",
+        "format_reward": 0.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 1,
+        "generated_text": " To solve the sub-problems, we need to integrate and differentiate the given speed function step-by-step.\n\nSub-problem 1: Total distance Sanne covers in the first 5 seconds\n\nFirst, we integrate the speed function \\( S(t) \\) with respect to \\( t \\) over the interval \\([0, 5]\\).\n\n\\[\n\\int_{0}^{5} (3t^2 - 2t + 4) \\, dt\n\\]\n\nWe integrate term-by-term:\n\n\\[\n\\int 3t^2 \\, dt = t^3\n\\]\n\\[\n\\int -2t \\, dt = -t^2\n\\]\n\\[\n\\int 4 \\, dt = 4t\n\\]\n\nCombining these, we get:\n\n\\[\nt^3 - t^2 + 4t\n\\]\n\nNow, evaluate this exp...",
+        "ground_truth": "To solve the given problem, we will address each sub-problem step-by-step.\n\n**Sub-problem 1: Total Distance Covered**\n\nThe distance covered is the integral of the speed function \\( S(t) \\) over the interval from \\( t = 0 \\) to \\( t = 5 \\).\n\nGiven:\n\\[ S(t) = 3t^2 - 2t + 4 \\]\n\nWe need to compute:\n\\[ \\int_{0}^{5} S(t) \\, dt = \\int_{0}^{5} (3t^2 - 2t + 4) \\, dt \\]\n\nLet's integrate term by term:\n\n1. \\(\\int 3t^2 \\, dt = 3 \\cdot \\frac{t^3}{3} = t^3\\)\n2. \\(\\int -2t \\, dt = -2 \\cdot \\frac{t^2}{2} = -t^2\\...",
+        "format_reward": 0.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 2,
+        "generated_text": " The initial population \\( P_0 \\) was 50,000 and the population doubled 20 years after his arrival. The population growth can be modeled by \\( P(t) = P_0 e^{kt} \\). Use the given information to determine the growth rate constant \\( k \\).\n\nFirst, let\u2019s rewrite the given information: \n\\[ P(20) = 100,000 \\]\n\\[ P(t) = 50,000 e^{kt} \\]\n\nSubstituting \\( P(20) \\) into the equation, we get:\n\\[ 100,000 = 50,000 e^{20k} \\]\n\nDividing both sides by 50,000, we obtain:\n\\[ 2 = e^{20k} \\]\n\nTaking the natural lo...",
+        "ground_truth": "To solve the given problem, we will address each part separately.\n\n### Part 1: Determining the Constant \\( k \\)\n\nThe population model is given by:\n\\[ P(t) = P_0 e^{kt} \\]\n\nWhere:\n- \\( P_0 = 50 \\) (since the population is in thousands)\n- The population doubles in 20 years, so \\( P(20) = 2P_0 = 100 \\).\n\nUsing the model at \\( t = 20 \\):\n\\[ P(20) = 50 e^{20k} = 100 \\]\n\nSolving for \\( k \\):\n\\[ e^{20k} = \\frac{100}{50} = 2 \\]\n\nTaking the natural logarithm on both sides:\n\\[ 20k = \\ln(2) \\]\n\n\\[ k = \\fra...",
+        "format_reward": 0.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 3,
+        "generated_text": " Let's break down the solution into manageable steps.\n\n#### Part 1: Rotations and Reflections in Complex Numbers\n\n1. Understanding the D\u2088 Symmetry: The dihedral group D\u2088 consists of symmetries of an octagon. Each symmetry can be described as a rotation or a reflection. For a rotation by 45 degrees and a reflection across the real axis, we need to determine the corresponding complex number transformations.\n\n2. Rotation by 45 Degrees: A rotation in the complex plane by an angle \\(\\theta\\) is repre...",
+        "ground_truth": "To solve the given problem, we will address each part separately.\n\n### Part 1: D\u2088 Symmetry in Complex Plane\n\nThe dihedral group \\(D_8\\) includes rotations and reflections that map an octagon onto itself. The group consists of 8 elements: 4 rotations (0\u00b0, 45\u00b0, 90\u00b0, 135\u00b0) and 4 reflections.\n\n#### Step 1: Rotation by 45 degrees\nIn the complex plane, a rotation by 45 degrees (or \\(\\pi/4\\) radians) is represented by multiplying a complex number \\( z \\) by \\( e^{i\\pi/4} = \\cos(\\pi/4) + i\\sin(\\pi/4) = ...",
+        "format_reward": 0.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      },
+      {
+        "example_id": 4,
+        "generated_text": " To solve the problem, we need to tackle the two tasks separately: analyzing the prime sequence and deciphering the encoded message.\n\n**Task 1: Prime Sequence Analysis**\n\nThe sequence provided is: 7, 11, 17, 23, 31, 41, 53, 67. To determine the next number, we need to identify the pattern. Let's examine the differences between consecutive terms:\n\n\\[\n11 - 7 = 4, \\quad 17 - 11 = 6, \\quad 23 - 17 = 6, \\quad 31 - 23 = 8, \\quad 41 - 31 = 10, \\quad 53 - 41 = 12, \\quad 67 - 53 = 14\n\\]\n\nThe differences ...",
+        "ground_truth": "To solve this problem, we need to tackle both the prime sequence analysis and the encoded message decryption separately.\n\n### Part 1: Prime Sequence Analysis\n\nThe given sequence of numbers is: 7, 11, 17, 23, 31, 41, 53, 67.\n\n**Step 1: Calculate the differences between consecutive primes.**\n\n- Difference between 11 and 7: \\(11 - 7 = 4\\)\n- Difference between 17 and 11: \\(17 - 11 = 6\\)\n- Difference between 23 and 17: \\(23 - 17 = 6\\)\n- Difference between 31 and 23: \\(31 - 23 = 8\\)\n- Difference betwe...",
+        "format_reward": 0.0,
+        "answer_reward": 0.0,
+        "total_reward": 0.0
+      }
+    ]
+  }
+}

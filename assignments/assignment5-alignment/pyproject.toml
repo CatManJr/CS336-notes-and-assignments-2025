@@ -20,6 +20,9 @@ dependencies = [
     "vllm==0.7.2",
     "wandb>=0.19.8",
     "xopen>=2.0.2",
+    "datasets>=2.14.4",
+    "huggingface-hub[cli]>=0.31.1",
+    "scikit-learn>=1.6.1",
 ]
 
 [tool.setuptools.packages.find]
