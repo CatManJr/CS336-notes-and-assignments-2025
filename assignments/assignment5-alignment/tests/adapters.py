@@ -219,14 +219,18 @@ def run_parse_mmlu_response(
     model_output: str,
 ) -> str | None:
     """Parse MMLU model output into a predicted option letter."""
-    raise NotImplementedError("Safety/RLHF functions are optional")
+    # Import the parsing function from our baseline script
+    from cs336_alignment.benchmark.evaluate_mmlu_baseline import parse_mmlu_response
+    return parse_mmlu_response(model_output)
 
 
 def run_parse_gsm8k_response(
     model_output: str,
 ) -> str | None:
     """Parse GSM8K model output into a predicted numeric answer."""
-    raise NotImplementedError("Safety/RLHF functions are optional")
+    # Import the parsing function from our baseline script
+    from cs336_alignment.benchmark.evaluate_gsm8k_baseline import parse_gsm8k_response
+    return parse_gsm8k_response(model_output)
 
 
 def run_compute_per_instance_dpo_loss(
