@@ -13,7 +13,7 @@ mkdir -p ./data/math_sft
 
 # Step 1: Prepare dataset splits
 echo "Step 1: Preparing dataset splits..."
-python prepare_math_dataset.py \
+uv run python prepare_math_dataset.py \
     --output_dir ./data/math_sft \
     --test_size 0.2 \
     --max_examples 5000 \
@@ -26,7 +26,7 @@ echo "Step 2: Running SFT training with different dataset sizes..."
 if [ ! -d "./models/Qwen2.5-Math-1.5B" ]; then
     echo "Error: Model not found at ./models/Qwen2.5-Math-1.5B"
     echo "Please download the model first using:"
-    echo "python download_model.py"
+    echo "uv run python download_model.py"
     exit 1
 fi
 
@@ -40,7 +40,7 @@ else
 fi
 
 # Run training for different dataset sizes
-python -m cs336_alignment.train_sft \
+uv run python -m cs336_alignment.train_sft \
     --model_path ./models/Qwen2.5-Math-1.5B \
     --data_path ./data/math_sft \
     --output_dir ./sft_results \
@@ -67,7 +67,7 @@ echo "Step 3: Evaluating final models..."
 for size in 128 256 512 1024 full; do
     if [ -d "./sft_results/size_$size/final_model" ]; then
         echo "Evaluating model trained on size $size..."
-        python -m cs336_alignment.benchmark.evaluate_math_baseline \
+        uv run python -m cs336_alignment.benchmark.evaluate_math_baseline \
             --model_path "./sft_results/size_$size/final_model" \
             --output_dir "./sft_results/size_$size/evaluation" \
             --max_examples 500

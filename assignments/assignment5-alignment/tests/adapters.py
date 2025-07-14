@@ -18,6 +18,16 @@ from cs336_alignment.sft_helpers import (
     tokenize_prompt_and_output,
 )
 
+# Import our implemented GRPO functions
+from cs336_alignment.grpo_helpers import (
+    compute_group_normalized_rewards,
+    compute_grpo_clip_loss,
+    compute_naive_policy_gradient_loss,
+    compute_policy_gradient_loss,
+    grpo_microbatch_train_step,
+    masked_mean,
+)
+
 
 def run_tokenize_prompt_and_output(
     prompt_strs, output_strs, tokenizer
@@ -75,8 +85,15 @@ def run_compute_group_normalized_rewards(
     advantage_eps,
     normalize_by_std,
 ):
-    """Compute group normalized rewards - placeholder for GRPO implementation."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    """Compute group normalized rewards."""
+    return compute_group_normalized_rewards(
+        reward_fn=reward_fn,
+        rollout_responses=rollout_responses,
+        repeated_ground_truths=repeated_ground_truths,
+        group_size=group_size,
+        advantage_eps=advantage_eps,
+        normalize_by_std=normalize_by_std,
+    )
 
 
 def run_grpo_microbatch_train_step(
@@ -89,13 +106,22 @@ def run_grpo_microbatch_train_step(
     old_log_probs,
     cliprange,
 ):
-    """GRPO microbatch train step - placeholder for GRPO implementation."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    """GRPO microbatch train step."""
+    return grpo_microbatch_train_step(
+        policy_log_probs=policy_log_probs,
+        response_mask=response_mask,
+        gradient_accumulation_steps=gradient_accumulation_steps,
+        loss_type=loss_type,
+        raw_rewards=raw_rewards,
+        advantages=advantages,
+        old_log_probs=old_log_probs,
+        cliprange=cliprange,
+    )
 
 
 def run_masked_mean(tensor, mask, dim=None):
-    """Masked mean computation - placeholder for GRPO implementation."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    """Masked mean computation."""
+    return masked_mean(tensor=tensor, mask=mask, dim=dim)
 
 
 # TODO: #5.1 Metrics
@@ -108,7 +134,14 @@ def run_get_rewards(
     normalize_by_std: bool,
 ) -> tuple[torch.Tensor, torch.Tensor, dict[str, float]]:
     """Compute rewards for each group of rollout responses, normalized by the group size."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    return compute_group_normalized_rewards(
+        reward_fn=reward_fn,
+        rollout_responses=responses,
+        repeated_ground_truths=repeated_ground_truths,
+        group_size=group_size,
+        advantage_eps=advantage_eps,
+        normalize_by_std=normalize_by_std,
+    )
 
 
 def run_compute_naive_policy_gradient_loss(
@@ -116,7 +149,10 @@ def run_compute_naive_policy_gradient_loss(
     policy_log_probs: torch.Tensor,
 ) -> torch.Tensor:
     """Compute policy gradient loss using either raw rewards or advantages."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    return compute_naive_policy_gradient_loss(
+        raw_rewards_or_advantages=raw_rewards_or_advantages,
+        policy_log_probs=policy_log_probs,
+    )
 
 
 def run_compute_grpo_clip_loss(
@@ -126,7 +162,12 @@ def run_compute_grpo_clip_loss(
     cliprange: float,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
     """Compute the GRPO-Clip loss."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    return compute_grpo_clip_loss(
+        advantages=advantages,
+        policy_log_probs=policy_log_probs,
+        old_log_probs=old_log_probs,
+        cliprange=cliprange,
+    )
 
 
 def run_compute_policy_gradient_loss(
@@ -138,7 +179,14 @@ def run_compute_policy_gradient_loss(
     cliprange: float,
 ) -> tuple[torch.Tensor, dict[str, torch.Tensor]]:
     """Wrapper that delegates to the appropriate policy gradient loss function above."""
-    raise NotImplementedError("GRPO functions will be implemented in RL section")
+    return compute_policy_gradient_loss(
+        policy_log_probs=policy_log_probs,
+        loss_type=loss_type,
+        raw_rewards=raw_rewards,
+        advantages=advantages,
+        old_log_probs=old_log_probs,
+        cliprange=cliprange,
+    )
 
 
 """

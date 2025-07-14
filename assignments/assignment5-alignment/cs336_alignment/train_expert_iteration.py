@@ -72,17 +72,80 @@ def load_math_questions(data_path: str, max_questions: Optional[int] = None) -> 
     """Load MATH questions from the dataset."""
     questions = []
     
-    if os.path.exists(data_path):
-        with open(data_path, 'r') as f:
-            for line in f:
-                data = json.loads(line.strip())
-                questions.append({
-                    'question': data.get('problem', data.get('question', '')),
-                    'answer': data.get('solution', data.get('answer', ''))
-                })
-    else:
-        # Fallback to validation data if file doesn't exist
-        print(f"Data file {data_path} not found, using validation data")
+    try:
+        # Load the dataset using pandas from parquet files (same as baseline evaluation)
+        print("Loading MATH dataset from allenai/tulu-3-sft-personas-math-filtered...")
+        df = pd.read_parquet("hf://datasets/allenai/tulu-3-sft-personas-math-filtered/data/train-00000-of-00001.parquet")
+        
+        print(f"Loaded {len(df)} examples from the dataset")
+        
+        # Set random seed for reproducibility
+        np.random.seed(42)
+        
+        print("Processing examples...")
+        for i, (idx, row) in enumerate(df.iterrows()):
+            try:
+                # Handle conversational format from messages
+                if "messages" in row and row["messages"] is not None:
+                    messages = row["messages"]
+                    
+                    # Extract the math problem from user message
+                    user_message = ""
+                    assistant_message = ""
+                    
+                    for msg in messages:
+                        if isinstance(msg, dict):
+                            if msg.get("role") == "user":
+                                user_message = msg.get("content", "")
+                            elif msg.get("role") == "assistant":
+                                assistant_message = msg.get("content", "")
+                    
+                    # Skip examples without both user and assistant messages
+                    if not user_message or not assistant_message:
+                        continue
+                    
+                    questions.append({
+                        'question': user_message,
+                        'answer': assistant_message
+                    })
+                    
+                elif "prompt" in row and row["prompt"] is not None:
+                    # Handle cases where there's a direct prompt field
+                    prompt = row["prompt"]
+                    
+                    # Try to extract solution from messages if available
+                    solution = ""
+                    if "messages" in row and row["messages"] is not None:
+                        for msg in row["messages"]:
+                            if isinstance(msg, dict) and msg.get("role") == "assistant":
+                                solution = msg.get("content", "")
+                                break
+                    
+                    if solution:
+                        questions.append({
+                            'question': prompt,
+                            'answer': solution
+                        })
+                
+            except Exception as e:
+                print(f"Error processing example {i}: {e}")
+                continue
+            
+            # Show progress for large datasets
+            if (i + 1) % 1000 == 0:
+                print(f"  Processed {i + 1}/{len(df)} examples, found {len(questions)} valid examples")
+        
+        print(f"Successfully processed {len(questions)} examples out of {len(df)} total examples")
+        
+        # Check if we have any valid examples
+        if len(questions) == 0:
+            print("ERROR: No valid examples found in the dataset!")
+            raise ValueError("No valid examples found in the dataset")
+        
+    except Exception as e:
+        print(f"Failed to load online dataset: {e}")
+        # Fallback to validation data if online dataset fails
+        print("Falling back to validation data...")
         validation_data = load_validation_data(max_examples=max_questions or 5000)
         for item in validation_data:
             questions.append({
@@ -91,7 +154,10 @@ def load_math_questions(data_path: str, max_questions: Optional[int] = None) -> 
             })
     
     if max_questions and len(questions) > max_questions:
-        questions = questions[:max_questions]
+        # Use fixed seed to ensure reproducible sampling
+        np.random.seed(42)
+        indices = np.random.choice(len(questions), max_questions, replace=False)
+        questions = [questions[i] for i in sorted(indices)]
     
     print(f"Loaded {len(questions)} questions")
     return questions

@@ -112,9 +112,11 @@ def load_validation_data(max_examples: int = 500) -> List[Dict[str, Any]]:
                 break
                 
             try:
+                # Handle conversational format from messages
                 if "messages" in row and row["messages"] is not None:
                     messages = row["messages"]
                     
+                    # Extract the math problem from user message
                     user_message = ""
                     assistant_message = ""
                     
@@ -125,20 +127,113 @@ def load_validation_data(max_examples: int = 500) -> List[Dict[str, Any]]:
                             elif msg.get("role") == "assistant":
                                 assistant_message = msg.get("content", "")
                     
-                    if user_message and assistant_message:
-                        all_examples.append({
-                            "problem": user_message,
-                            "solution": assistant_message
-                        })
+                    # Skip examples without both user and assistant messages
+                    if not user_message or not assistant_message:
+                        continue
+                    
+                    # Extract just the math problem from the user message
+                    problem = user_message
+                    
+                    math_example = {
+                        "problem": problem,  # Store the raw problem for formatting with r1_zero prompt
+                        "solution": assistant_message,  # Use assistant message as solution
+                        "level": row.get("level", "Unknown"),
+                        "type": row.get("type", "Math"),
+                        "messages": messages,  # Keep original messages for reference
+                        "id": row.get("id", f"example_{i}")
+                    }
+                    all_examples.append(math_example)
+                    
+                elif "prompt" in row and row["prompt"] is not None:
+                    # Handle cases where there's a direct prompt field
+                    prompt = row["prompt"]
+                    
+                    # Try to extract solution from messages if available
+                    solution = ""
+                    if "messages" in row and row["messages"] is not None:
+                        for msg in row["messages"]:
+                            if isinstance(msg, dict) and msg.get("role") == "assistant":
+                                solution = msg.get("content", "")
+                                break
+                    
+                    if solution:
+                        math_example = {
+                            "problem": prompt,
+                            "solution": solution,
+                            "level": row.get("level", "Unknown"),
+                            "type": row.get("type", "Math"),
+                            "messages": row.get("messages", []),
+                            "id": row.get("id", f"example_{i}")
+                        }
+                        all_examples.append(math_example)
+                
             except Exception as e:
+                print(f"Error processing example {i}: {e}")
                 continue
+            
+            # Show progress for large datasets
+            if (i + 1) % 1000 == 0:
+                print(f"  Processed {i + 1}/{len(df)} examples, found {len(all_examples)} valid examples")
         
-        print(f"Loaded {len(all_examples)} validation examples")
-        return all_examples
+        print(f"Successfully processed {len(all_examples)} examples out of {len(df)} total examples")
         
+        # Check if we have any valid examples
+        if len(all_examples) == 0:
+            print("ERROR: No valid examples found in the dataset!")
+            raise ValueError("No valid examples found in the dataset")
+        
+        # Apply max_examples limit if specified (before splitting)
+        if max_examples and len(all_examples) > max_examples:
+            print(f"Limiting processed examples to {max_examples} (from {len(all_examples)})")
+            # Use fixed seed to ensure reproducible sampling
+            np.random.seed(42)
+            indices = np.random.choice(len(all_examples), max_examples, replace=False)
+            all_examples = [all_examples[i] for i in sorted(indices)]
+        
+        # Split the dataset into train and test sets based on dataset length
+        if len(all_examples) > 1 and 0.2 > 0:
+            print(f"Splitting dataset with test_size={0.2}, random_state={42}")
+            
+            from sklearn.model_selection import train_test_split
+            
+            # Calculate test size based on dataset length
+            test_count = int(len(all_examples) * 0.2)
+            train_count = len(all_examples) - test_count
+            
+            print(f"Total examples: {len(all_examples)}")
+            print(f"Test examples: {test_count} ({test_count/len(all_examples):.1%})")
+            print(f"Train examples: {train_count} ({train_count/len(all_examples):.1%})")
+            
+            train_examples, test_examples = train_test_split(
+                all_examples, 
+                test_size=0.2, 
+                random_state=42,
+                shuffle=True
+            )
+            
+            print(f"Split completed: {len(train_examples)} training, {len(test_examples)} test examples")
+            
+            # For evaluation, we'll use the test set
+            all_examples = test_examples
+        else:
+            print("No splitting performed (insufficient examples or test_size=0)")
+                
     except Exception as e:
-        print(f"Error loading validation data: {e}")
-        return []
+        print(f"CRITICAL ERROR: Failed to load dataset: {e}")
+        print("="*80)
+        print("DATASET LOADING FAILED")
+        print("="*80)
+        print("Cannot proceed with benchmark without real dataset.")
+        print("Please ensure:")
+        print("1. Internet connection is available")
+        print("2. Hugging Face authentication is properly configured")
+        print("3. The dataset 'allenai/tulu-3-sft-personas-math-filtered' exists and is accessible")
+        print("4. Pandas and required dependencies are installed")
+        print("="*80)
+        raise SystemExit(f"Failed to load real dataset: {e}")
+    
+    print(f"Total examples loaded for evaluation: {len(all_examples)}")
+    return all_examples
 
 
 def init_vllm(model_id: str, device: str, seed: int, gpu_memory_utilization: float = 0.85):
