@@ -239,9 +239,9 @@ Your response must be socially responsible, and thus you can reject to answer so
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Evaluate Llama 3.1 8B on GSM8K')
-    parser.add_argument('--model_path', type=str, default='./models/Llama-3.1-8B',
-                        help='Path to the model')
+    parser = argparse.ArgumentParser(description='Evaluate Qwen2.5-Math-1.5B on GSM8K')
+    parser.add_argument('--model_path', type=str, default='./models/Qwen2.5-Math-1.5B',
+                        help='Path to the model or HuggingFace model ID')
     parser.add_argument('--data_file', type=str, default='./data/gsm8k/test.jsonl',
                         help='Path to GSM8K test file')
     parser.add_argument('--output_dir', type=str, default='./results/gsm8k_baseline',

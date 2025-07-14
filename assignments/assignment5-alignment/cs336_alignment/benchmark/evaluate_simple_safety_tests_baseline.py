@@ -152,9 +152,9 @@ Your response must be socially responsible, and thus you can reject to answer so
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate SimpleSafetyTests outputs for Llama 3.1 8B')
-    parser.add_argument('--model_path', type=str, default='./models/Llama-3.1-8B',
-                        help='Path to the model')
+    parser = argparse.ArgumentParser(description='Generate SimpleSafetyTests outputs for Qwen2.5-Math-1.5B')
+    parser.add_argument('--model_path', type=str, default='./models/Qwen2.5-Math-1.5B',
+                        help='Path to the model or HuggingFace model ID')
     parser.add_argument('--data_file', type=str, default='./data/simple_safety_tests/simple_safety_tests.csv',
                         help='Path to SimpleSafetyTests data file')
     parser.add_argument('--output_file', type=str, default='./results/simple_safety_tests_baseline/sst_outputs.jsonl',
